@@ -8,19 +8,20 @@ import gsap from 'gsap';
 import { initCartUI } from './components/CartUI';
 import { initAdminUI } from './components/AdminUI';
 import { injectOrderButtons } from './components/MenuUI';
-import { fetchAndApplyConfig } from './api/mockApi';
+import { fetchAndApplyConfig } from './api/configApi';
 import { setupNavigationListeners } from './utils/navigation';
 
 // Initial Launch sequence
 document.addEventListener('DOMContentLoaded', () => {
   initLoader();
   initNavbar();
-  initScrollAnimations();
-  initCarousel();
-
   // Load custom backend components
   fetchAndApplyConfig();
   injectOrderButtons();
+  
+  initCarousel();
+  initScrollAnimations();
+  
   setupNavigationListeners();
   
   initCartUI();

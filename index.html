@@ -3,58 +3,110 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>The Quiet Ritual - Coffee Roasters</title>
+    <title>Kopi josjis - Coffee Roasters</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&amp;family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/src/style.css" />
 </head>
-<body class="bg-surface text-on-surface font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<body class="bg-surface text-on-surface font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container relative">
+
+<!-- Background Pattern Overlay -->
+<div class="fixed inset-0 z-[-1] pointer-events-none" style="background-image: url('/bg-pattern.png'); background-size: 350px; background-repeat: repeat; opacity: 0.08; mix-blend-mode: multiply;"></div>
 
 <div id="loader" class="fixed inset-0 z-[100] bg-surface flex flex-col items-center justify-center transition-opacity duration-500">
-    <div class="text-primary text-headline-md font-display-lg animate-pulse">The Quiet Ritual</div>
-    <div class="mt-4 text-secondary text-label-md tracking-widest uppercase">Menyeduh...</div>
+    <video id="loader-video" autoplay loop muted playsinline class="w-32 h-32 object-contain mb-8">
+        <source src="/Coffee-loading.webm" type="video/webm">
+    </video>
+    <div class="text-primary text-headline-md font-display-lg mb-8">Kopi josjis</div>
+    
+    <!-- Progress Bar -->
+    <div class="w-64 h-1 bg-surface-container-high rounded-full overflow-hidden relative">
+        <div id="loader-bar" class="absolute top-0 left-0 h-full w-0 bg-[#7C4A3A] rounded-full"></div>
+    </div>
+    
+    <div class="mt-4 flex items-center gap-2">
+        <div class="text-secondary text-label-md tracking-widest uppercase">Menyeduh...</div>
+        <div id="loader-text" class="text-primary font-bold text-label-md">0%</div>
+    </div>
 </div>
 
 <!-- TopNavBar Shared Component -->
 <nav class="fixed top-0 w-full z-50 transition-all duration-300 ease-in-out bg-surface/90 backdrop-blur-md shadow-sm" id="navbar">
     <div class="flex justify-between items-center max-w-max-width mx-auto px-grid-margin py-base">
-        <a class="text-headline-md font-display-lg text-primary tracking-tight brand-text" href="#">The Quiet Ritual</a>
+        <a class="text-headline-md font-display-lg text-primary tracking-tight brand-text" href="#">Kopi josjis</a>
         <div class="hidden md:flex space-x-8 items-center">
+            <a class="text-label-md font-label-md text-on-surface-variant transition-colors duration-300 hover:text-primary nav-link" href="#hero">Home</a>
             <a class="text-label-md font-label-md text-on-surface-variant transition-colors duration-300 hover:text-primary nav-link" href="#about">Cerita Kami</a>
             <a class="text-label-md font-label-md text-on-surface-variant transition-colors duration-300 hover:text-primary nav-link" href="#menu">Menu</a>
             <a class="text-label-md font-label-md text-on-surface-variant transition-colors duration-300 hover:text-primary nav-link" href="#gallery">Galeri</a>
         </div>
         
-        <div class="flex items-center space-x-4">
-            <!-- Admin Dashboard Trigger -->
-            <button class="text-on-surface-variant hover:text-primary transition-colors p-2 relative cursor-pointer" id="nav-admin-btn" title="Kelola Toko">
-                <span class="material-symbols-outlined text-2xl">settings</span>
-            </button>
-
-            <!-- Shopping Cart Trigger -->
-            <button class="bg-primary-container text-on-primary font-label-md text-label-md px-5 py-2.5 rounded hover:bg-primary transition-colors flex items-center gap-2 relative cursor-pointer" id="nav-cart-btn">
+        <!-- Actions -->
+        <div class="flex items-center gap-4">
+            <!-- Mobile Cart Button (hidden on md) -->
+            <button class="md:hidden bg-primary-container text-on-primary font-label-md text-label-md p-2.5 rounded hover:bg-primary transition-colors flex items-center gap-2 relative cursor-pointer" id="nav-cart-btn-mobile">
                 <span class="material-symbols-outlined text-lg">shopping_cart</span>
-                <span class="hidden sm:inline">Ritual Saya</span>
-                <span class="bg-secondary text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold" id="cart-count">0</span>
             </button>
             
-            <button class="md:hidden text-primary p-2" id="mobile-menu-btn">
-                <span class="material-symbols-outlined">menu</span>
+            <!-- Desktop Action Dropdown (visible on md) -->
+            <div class="hidden md:block relative z-50">
+                <button class="bg-primary text-on-primary w-11 h-11 rounded-full hover:bg-secondary transition-colors flex items-center justify-center relative cursor-pointer shadow-md" id="desktop-actions-btn">
+                    <span class="material-symbols-outlined text-2xl">local_cafe</span>
+                    <span class="bg-secondary text-white text-[10px] w-5 h-5 rounded-full absolute -top-1 -right-1 flex items-center justify-center font-bold" id="cart-count">0</span>
+                </button>
+                
+                <!-- Dropdown Menu -->
+                <div id="desktop-actions-dropdown" class="absolute top-full right-0 mt-3 w-48 bg-surface rounded-xl shadow-xl border border-outline-variant/30 flex flex-col overflow-hidden transition-all duration-200 transform origin-top-right scale-95 opacity-0 invisible">
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-primary hover:bg-primary/10 transition-colors text-left cursor-pointer" id="nav-admin-btn">
+                        <span class="material-symbols-outlined text-xl">settings</span>
+                        <span class="font-bold text-label-md">Kelola Toko</span>
+                    </button>
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-primary hover:bg-primary/10 transition-colors text-left border-t border-outline-variant/30 cursor-pointer" id="nav-cart-btn">
+                        <span class="material-symbols-outlined text-xl">shopping_cart</span>
+                        <span class="font-bold text-label-md flex-1">Cart Saya</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu Trigger -->
+            <button class="md:hidden text-primary p-2 flex items-center justify-center cursor-pointer" id="mobile-menu-btn">
+                <span class="material-symbols-outlined text-2xl">menu</span>
             </button>
         </div>
     </div>
 </nav>
 
+<!-- Mobile Menu Overlay -->
+<div id="mobile-menu" class="fixed inset-y-0 right-0 w-[60vw] max-w-sm z-[60] bg-primary flex flex-col items-center justify-center space-y-8 transform translate-x-full transition-transform duration-300 md:hidden shadow-2xl">
+    <button id="mobile-menu-close" class="absolute top-6 right-6 p-2 text-on-primary cursor-pointer">
+        <span class="material-symbols-outlined text-3xl">close</span>
+    </button>
+    
+    <a class="text-headline-sm font-display-lg text-on-primary transition-colors hover:text-primary-fixed mobile-nav-link" href="#hero">Home</a>
+    <a class="text-headline-sm font-display-lg text-on-primary transition-colors hover:text-primary-fixed mobile-nav-link" href="#about">Cerita Kami</a>
+    <a class="text-headline-sm font-display-lg text-on-primary transition-colors hover:text-primary-fixed mobile-nav-link" href="#menu">Menu</a>
+    <a class="text-headline-sm font-display-lg text-on-primary transition-colors hover:text-primary-fixed mobile-nav-link" href="#gallery">Galeri</a>
+    
+    <div class="w-16 h-[1px] bg-on-primary/30 my-4"></div>
+    
+    <button class="flex items-center gap-2 text-headline-sm font-display-lg text-on-primary transition-colors hover:text-primary-fixed cursor-pointer" id="mobile-admin-btn">
+        <span class="material-symbols-outlined text-2xl">settings</span>
+        Kelola Toko
+    </button>
+</div>
+    </div>
+</nav>
+
 <main class="opacity-0 translate-y-4" id="main-content">
     <!-- Hero Section -->
-    <section class="relative min-h-[90vh] flex items-center pt-24 pb-section-gap-mobile md:pb-section-gap-desktop overflow-hidden">
+    <section id="hero" class="relative min-h-[90vh] flex items-center pt-24 pb-section-gap-mobile md:pb-section-gap-desktop overflow-hidden">
         <div class="max-w-max-width mx-auto px-grid-margin w-full grid grid-cols-1 lg:grid-cols-2 gap-grid-gutter items-center relative z-10">
             <div class="space-y-8 max-w-xl hero-content">
                 <h1 class="text-display-lg font-display-lg text-primary leading-tight">
                     Seduhan Sempurna untuk Momen Tenang
                 </h1>
                 <p class="text-body-lg font-body-lg text-on-surface-variant">
-                    Nikmati kopi artisanal di tempat yang dirancang untuk ketenangan. Pilihan biji kopi single-origin terbaik, dipanggang dengan penuh dedikasi untuk menyempurnakan ritual harian Anda.
+                    Nikmati kopi artisanal di tempat yang dirancang untuk ketenangan. Pilihan biji kopi single-origin terbaik, dipanggang dengan penuh dedikasi untuk menyempurnakan hari Anda.
                 </p>
                 <div class="pt-4">
                     <a class="inline-block bg-primary-container text-on-primary font-label-md text-label-md px-8 py-4 rounded hover:bg-primary transition-colors hover:scale-105 transform duration-300" href="#menu">
@@ -70,20 +122,20 @@
     </section>
 
     <!-- About Section -->
-    <section class="py-section-gap-mobile md:py-section-gap-desktop bg-surface-container-low" id="about">
+    <section class="py-section-gap-mobile md:py-section-gap-desktop bg-surface-container-low/70" id="about">
         <div class="max-w-max-width mx-auto px-grid-margin">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <div class="order-2 lg:order-1 relative about-image">
                     <video autoplay loop muted playsinline class="w-full h-[500px] object-cover rounded-xl ambient-shadow relative z-10">
-                        <source src="https://videos.pexels.com/video-files/3205917/3205917-uhd_2560_1440_25fps.mp4" type="video/mp4">
+                        <source src="/vidio-kopi.mp4" type="video/mp4">
                         Video tidak didukung.
                     </video>
                     <div class="absolute -bottom-8 -right-8 w-48 h-48 bg-secondary-fixed rounded-full blur-3xl opacity-30 -z-10"></div>
                 </div>
                 <div class="order-1 lg:order-2 space-y-6 about-content">
-                    <h2 class="text-headline-lg font-display-lg text-primary">Cerita Kami</h2>
+                    <h2 class="text-display-md md:text-display-lg font-display-lg text-primary">Cerita Kami</h2>
                     <p class="text-body-lg font-body-lg text-on-surface-variant">
-                        Lahir dari keinginan untuk melambat, The Quiet Ritual lebih dari sekadar kedai kopi—ini adalah tempat perlindungan. Kami percaya bahwa setiap cangkir menceritakan kisah asalnya, dedikasi petani, dan seni memanggang yang cermat.
+                        Lahir dari keinginan untuk melambat, Kopi josjis lebih dari sekadar kedai kopi—ini adalah tempat perlindungan. Kami percaya bahwa setiap cangkir menceritakan kisah asalnya, dedikasi petani, dan seni memanggang yang cermat.
                     </p>
                     <p class="text-body-lg font-body-lg text-on-surface-variant">
                         Biji kopi kami diperoleh secara etis dan dipanggang secara perlahan dalam jumlah kecil untuk mengeluarkan profil rasa yang bernuansa. Kami mengundang Anda untuk berhenti sejenak, bernapas, dan menikmati kompleksitas dari sebuah kesederhanaan.
@@ -94,19 +146,27 @@
     </section>
 
     <!-- Menu Section -->
-    <section class="py-section-gap-mobile md:py-section-gap-desktop overflow-hidden bg-surface" id="menu">
+    <section class="py-section-gap-mobile md:py-section-gap-desktop overflow-hidden bg-surface/80" id="menu">
         <div class="max-w-max-width mx-auto px-grid-margin">
             <div class="text-center mb-16 space-y-4 menu-header">
-                <h2 class="text-headline-lg font-display-lg text-primary">Menu</h2>
+                <h2 class="text-display-md md:text-display-lg font-display-lg text-primary">Menu</h2>
                 <p class="text-body-lg font-body-lg text-on-surface-variant max-w-2xl mx-auto">Pilihan yang dikurasi dan diracik dengan presisi.</p>
             </div>
         </div>
         
-        <div class="relative w-full overflow-hidden group py-4">
-            <div class="menu-carousel-wrapper flex gap-8 px-8 w-max animate-marquee">
+        <div class="relative w-full group py-4">
+            <!-- Navigation Buttons (Desktop) -->
+            <button id="menu-prev-btn" class="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-surface rounded-full shadow-lg items-center justify-center text-primary z-20 hover:bg-primary hover:text-white transition-colors cursor-pointer">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <button id="menu-next-btn" class="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-surface rounded-full shadow-lg items-center justify-center text-primary z-20 hover:bg-primary hover:text-white transition-colors cursor-pointer">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+
+            <div id="menu-scroll-container" class="menu-scroll-container flex gap-8 px-8 md:px-20 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-8" style="scrollbar-width: none;">
                 <!-- Set 1 -->
                 <!-- Coffee 1 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
+                <div class="menu-card w-[75vw] sm:w-80 snap-center bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
                     <div class="h-48 overflow-hidden relative">
                         <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=400" alt="Pour Over" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
                         <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 35.000</div>
@@ -119,7 +179,7 @@
                 </div>
 
                 <!-- Coffee 2 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
+                <div class="menu-card w-[75vw] sm:w-80 snap-center bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
                     <div class="h-48 overflow-hidden relative">
                         <img src="https://images.unsplash.com/photo-1579992357154-faf4bde95b3d?auto=format&fit=crop&q=80&w=400" alt="Flat White" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
                         <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 30.000</div>
@@ -132,7 +192,7 @@
                 </div>
 
                 <!-- Coffee 3 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
+                <div class="menu-card w-[75vw] sm:w-80 snap-center bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
                     <div class="h-48 overflow-hidden relative">
                         <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&q=80&w=400" alt="Cold Brew" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
                         <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 25.000</div>
@@ -145,7 +205,7 @@
                 </div>
 
                 <!-- Pastry 1 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
+                <div class="menu-card w-[75vw] sm:w-80 snap-center bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
                     <div class="h-48 overflow-hidden relative">
                         <img src="https://images.unsplash.com/photo-1623334044303-241021148842?auto=format&fit=crop&q=80&w=400" alt="Almond Croissant" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
                         <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 25.000</div>
@@ -158,7 +218,7 @@
                 </div>
 
                 <!-- Pastry 2 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
+                <div class="menu-card w-[75vw] sm:w-80 snap-center bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
                     <div class="h-48 overflow-hidden relative">
                         <img src="https://images.unsplash.com/photo-1550617931-e17a7b70dce2?auto=format&fit=crop&q=80&w=400" alt="Lemon Cake" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
                         <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 28.000</div>
@@ -171,7 +231,7 @@
                 </div>
                 
                 <!-- Coffee 4 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
+                <div class="menu-card w-[75vw] sm:w-80 snap-center bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
                     <div class="h-48 overflow-hidden relative">
                         <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=400" alt="Matcha" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
                         <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 32.000</div>
@@ -179,97 +239,71 @@
                     <div class="p-6">
                         <h3 class="text-headline-md font-display-lg text-primary mb-2">Matcha Latte</h3>
                         <p class="text-body-md text-on-surface-variant mb-4">Matcha Uji grade seremonial, diaduk perlahan dengan susu.</p>
-                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Ritual</span>
+                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Terbaik</span>
                     </div>
                 </div>
 
-                <!-- Set 2 (Duplicated for marquee) -->
-                <!-- Coffee 1 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
+                <!-- Coffee 5 -->
+                <div class="menu-card w-[75vw] sm:w-80 snap-center bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
                     <div class="h-48 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=400" alt="Pour Over" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
-                        <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 35.000</div>
+                        <img src="https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&q=80&w=400" alt="Espresso" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
+                        <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 20.000</div>
                     </div>
                     <div class="p-6">
-                        <h3 class="text-headline-md font-display-lg text-primary mb-2">Pour Over</h3>
-                        <p class="text-body-md text-on-surface-variant mb-4">Single origin Ethiopia Yirgacheffe, floral & cerah.</p>
-                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Light Roast</span>
+                        <h3 class="text-headline-md font-display-lg text-primary mb-2">Espresso</h3>
+                        <p class="text-body-md text-on-surface-variant mb-4">Ekstraksi murni dengan crema tebal dan rasa yang kuat.</p>
+                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Classic</span>
                     </div>
                 </div>
 
-                <!-- Coffee 2 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
+                <!-- Coffee 6 -->
+                <div class="menu-card w-[75vw] sm:w-80 snap-center bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
                     <div class="h-48 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1579992357154-faf4bde95b3d?auto=format&fit=crop&q=80&w=400" alt="Flat White" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
+                        <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&q=80&w=400" alt="Cappuccino" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
+                        <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 28.000</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-headline-md font-display-lg text-primary mb-2">Cappuccino</h3>
+                        <p class="text-body-md text-on-surface-variant mb-4">Keseimbangan sempurna antara espresso, susu, dan busa.</p>
+                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Favorite</span>
+                    </div>
+                </div>
+
+                <!-- Pastry 3 -->
+                <div class="menu-card w-[75vw] sm:w-80 snap-center bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&q=80&w=400" alt="Fudge Brownies" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
+                        <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 22.000</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-headline-md font-display-lg text-primary mb-2">Fudge Brownies</h3>
+                        <p class="text-body-md text-on-surface-variant mb-4">Cokelat premium yang padat, lembut, dan meleleh di mulut.</p>
+                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Dessert</span>
+                    </div>
+                </div>
+
+                <!-- Drink 1 -->
+                <div class="menu-card w-[75vw] sm:w-80 snap-center bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&q=80&w=400" alt="Kombucha" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
                         <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 30.000</div>
                     </div>
                     <div class="p-6">
-                        <h3 class="text-headline-md font-display-lg text-primary mb-2">Flat White</h3>
-                        <p class="text-body-md text-on-surface-variant mb-4">Microfoam lembut berpadu dengan double ristretto shot.</p>
-                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Signature</span>
+                        <h3 class="text-headline-md font-display-lg text-primary mb-2">Berry Kombucha</h3>
+                        <p class="text-body-md text-on-surface-variant mb-4">Teh fermentasi alami dengan campuran buah beri segar.</p>
+                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Healthy</span>
                     </div>
                 </div>
 
-                <!-- Coffee 3 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
-                    <div class="h-48 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&q=80&w=400" alt="Cold Brew" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
-                        <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 25.000</div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-headline-md font-display-lg text-primary mb-2">Cold Brew</h3>
-                        <p class="text-body-md text-on-surface-variant mb-4">Diseduh perlahan selama 24 jam, mulus dan bercita rasa cokelat.</p>
-                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Refreshing</span>
-                    </div>
-                </div>
-
-                <!-- Pastry 1 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
-                    <div class="h-48 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1623334044303-241021148842?auto=format&fit=crop&q=80&w=400" alt="Almond Croissant" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
-                        <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 25.000</div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-headline-md font-display-lg text-primary mb-2">Almond Croissant</h3>
-                        <p class="text-body-md text-on-surface-variant mb-4">Dipanggang dua kali, isi frangipane, dengan taburan almond renyah.</p>
-                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Pastry</span>
-                    </div>
-                </div>
-
-                <!-- Pastry 2 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
-                    <div class="h-48 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1550617931-e17a7b70dce2?auto=format&fit=crop&q=80&w=400" alt="Lemon Cake" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
-                        <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 28.000</div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-headline-md font-display-lg text-primary mb-2">Lemon Cake</h3>
-                        <p class="text-body-md text-on-surface-variant mb-4">Lembut, padat, dengan lapisan jeruk nipis yang menyegarkan.</p>
-                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Cake</span>
-                    </div>
-                </div>
-                
-                <!-- Coffee 4 -->
-                <div class="menu-card w-80 bg-surface-container rounded-xl overflow-hidden ambient-shadow flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
-                    <div class="h-48 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=400" alt="Matcha" class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110" />
-                        <div class="absolute top-2 right-2 bg-surface/90 px-3 py-1 rounded-full text-label-md font-bold text-primary backdrop-blur-sm">Rp 32.000</div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-headline-md font-display-lg text-primary mb-2">Matcha Latte</h3>
-                        <p class="text-body-md text-on-surface-variant mb-4">Matcha Uji grade seremonial, diaduk perlahan dengan susu.</p>
-                        <span class="inline-block px-2 py-1 bg-surface rounded text-[10px] uppercase tracking-widest text-secondary">Ritual</span>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
 
     <!-- Gallery Section -->
-    <section class="py-section-gap-mobile md:py-section-gap-desktop bg-surface-container-low" id="gallery">
+    <section class="py-section-gap-mobile md:py-section-gap-desktop bg-surface-container-low/70" id="gallery">
         <div class="max-w-max-width mx-auto px-grid-margin">
             <div class="text-center mb-16 gallery-header">
-                <h2 class="text-headline-lg font-display-lg text-primary">Galeri</h2>
+                <h2 class="text-display-md md:text-display-lg font-display-lg text-primary">Galeri</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[250px]">
                 <div class="gallery-item relative overflow-hidden rounded-lg group col-span-1 md:col-span-2 lg:col-span-2 row-span-2">
@@ -290,15 +324,36 @@
                         <p class="text-on-primary font-label-md text-label-md uppercase tracking-wider">Momen Tenang</p>
                     </div>
                 </div>
+                <!-- New item 1 -->
+                <div class="gallery-item relative overflow-hidden rounded-lg group row-span-1">
+                    <img alt="Penyeduhan Manual" class="w-full h-full object-cover transition-transform duration-700 ease-in-out" src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=400"/>
+                    <div class="overlay absolute inset-0 bg-primary/40 opacity-0 transition-opacity duration-300 flex items-end p-4">
+                        <p class="text-on-primary font-label-md text-label-md uppercase tracking-wider">Manual Brew</p>
+                    </div>
+                </div>
+                <!-- New item 2 -->
+                <div class="gallery-item relative overflow-hidden rounded-lg group col-span-1 md:col-span-2 lg:col-span-1 row-span-1">
+                    <img alt="Biji Kopi Sangrai" class="w-full h-full object-cover transition-transform duration-700 ease-in-out" src="https://images.unsplash.com/photo-1559525839-b184a4d698c7?auto=format&fit=crop&q=80&w=400"/>
+                    <div class="overlay absolute inset-0 bg-primary/40 opacity-0 transition-opacity duration-300 flex items-end p-4">
+                        <p class="text-on-primary font-label-md text-label-md uppercase tracking-wider">Roasting</p>
+                    </div>
+                </div>
+                <!-- New item 3 -->
+                <div class="gallery-item relative overflow-hidden rounded-lg group col-span-1 md:col-span-2 lg:col-span-1 row-span-1">
+                    <img alt="Barista" class="w-full h-full object-cover transition-transform duration-700 ease-in-out" src="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?auto=format&fit=crop&q=80&w=400"/>
+                    <div class="overlay absolute inset-0 bg-primary/40 opacity-0 transition-opacity duration-300 flex items-end p-4">
+                        <p class="text-on-primary font-label-md text-label-md uppercase tracking-wider">Barista Kami</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Testimonials Section -->
-    <section class="py-section-gap-mobile md:py-section-gap-desktop bg-surface" id="testimonials">
+    <section class="py-section-gap-mobile md:py-section-gap-desktop bg-surface/80" id="testimonials">
         <div class="max-w-max-width mx-auto px-grid-margin">
              <div class="text-center mb-12">
-                <h2 class="text-headline-lg font-display-lg text-primary">Kata Mereka</h2>
+                <h2 class="text-display-md md:text-display-lg font-display-lg text-primary">Kata Mereka</h2>
             </div>
             <div class="overflow-hidden relative testimonials-container w-full max-w-3xl mx-auto bg-surface-container rounded-2xl p-8 md:p-12 ambient-shadow">
                 <div class="testimonial-slider flex">
@@ -320,12 +375,12 @@
 </main>
 
 <!-- Footer -->
-<footer class="bg-surface-container w-full px-grid-margin py-section-gap-mobile md:py-section-gap-desktop">
+<footer class="bg-surface-container/80 w-full px-grid-margin py-section-gap-mobile md:py-section-gap-desktop">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-grid-gutter max-w-max-width mx-auto footer-content">
         <div class="col-span-1 md:col-span-2 space-y-4">
-            <h3 class="text-headline-md font-display-lg text-primary">The Quiet Ritual</h3>
+            <h3 class="text-headline-md font-display-lg text-primary">Kopi josjis</h3>
             <p class="text-body-md font-body-md text-on-surface-variant max-w-sm">
-                Sebuah tempat untuk menikmati kopi perlahan dan merenung. Bergabunglah dengan kami untuk ritual harian Anda.
+                Sebuah tempat untuk menikmati kopi perlahan dan merenung. Bergabunglah dengan kami untuk kopi harian Anda.
             </p>
         </div>
         <div class="space-y-4">
@@ -350,7 +405,7 @@
         </div>
     </div>
     <div class="max-w-max-width mx-auto mt-16 pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
-        <p class="text-label-md font-label-md text-on-surface-variant">© 2024 The Quiet Ritual Coffee Roasters. Seluruh hak cipta.</p>
+        <p class="text-label-md font-label-md text-on-surface-variant">© 2024 Kopi josjis Coffee Roasters. Seluruh hak cipta.</p>
         <div class="flex space-x-6">
             <a class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-high" id="link-instagram" href="#" target="_blank" title="Instagram">
                 <span class="material-symbols-outlined text-xl">camera_alt</span>
@@ -374,7 +429,7 @@
     <div class="p-6 border-b border-outline-variant flex justify-between items-center bg-primary-container text-on-primary">
         <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-xl text-secondary-fixed">shopping_cart</span>
-            <h3 class="font-display-lg text-headline-sm">Ritual Saya</h3>
+            <h3 class="font-display-lg text-headline-sm">Cart Saya</h3>
         </div>
         <button id="close-cart-btn" class="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer">
             <span class="material-symbols-outlined">close</span>
@@ -420,7 +475,7 @@
             </div>
             <button type="submit" id="submit-order-btn" class="w-full bg-primary text-on-primary font-bold py-3.5 rounded hover:bg-primary-container transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md">
                 <span class="material-symbols-outlined text-lg">local_cafe</span>
-                Pesan Ritual Sekarang
+                Pesan Sekarang
             </button>
         </form>
     </div>
@@ -434,10 +489,37 @@
             <span class="material-symbols-outlined text-xl text-secondary-fixed">settings_applications</span>
             <h3 class="font-display-lg text-headline-sm">Kelola Toko</h3>
         </div>
-        <button id="close-admin-btn" class="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer">
-            <span class="material-symbols-outlined">close</span>
-        </button>
+        <div class="flex items-center gap-3">
+            <button id="admin-logout-btn" class="hidden text-xs bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded font-bold cursor-pointer transition-colors">Logout</button>
+            <button id="close-admin-btn" class="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
     </div>
+
+    <!-- Login View -->
+    <div id="admin-login-view" class="p-6 flex flex-col items-center justify-center h-full">
+        <span class="material-symbols-outlined text-5xl text-primary mb-4">lock</span>
+        <h4 class="text-headline-sm font-display-lg text-primary mb-2">Akses Terbatas</h4>
+        <p class="text-body-md text-on-surface-variant text-center mb-6">Silakan login untuk mengelola toko.</p>
+        
+        <form id="admin-login-form" class="w-full max-w-sm space-y-4">
+            <div>
+                <label class="block text-label-md font-bold text-primary mb-1">Email</label>
+                <input required type="email" id="login-email" class="w-full px-4 py-2.5 rounded border border-outline/30 bg-surface focus:border-secondary focus:outline-none" placeholder="admin@email.com" />
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-primary mb-1">Password</label>
+                <input required type="password" id="login-password" class="w-full px-4 py-2.5 rounded border border-outline/30 bg-surface focus:border-secondary focus:outline-none" placeholder="••••••••" />
+            </div>
+            <button type="submit" id="login-submit-btn" class="w-full bg-primary text-on-primary font-bold py-3 rounded hover:bg-primary-container transition-colors cursor-pointer shadow-md">
+                Login
+            </button>
+        </form>
+    </div>
+
+    <!-- Admin Dashboard View -->
+    <div id="admin-dashboard-view" class="hidden flex-col h-[calc(100%-80px)]">
 
     <!-- Admin Tabs Control -->
     <div class="flex border-b border-outline-variant bg-surface-container">
@@ -497,7 +579,7 @@
 </div>
 
 <!-- Floating Action Buttons (Symmetry, modern, high-polish) -->
-<div class="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+<div id="fab-container" class="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
     <!-- Floating Quick Cart -->
     <button id="float-cart-btn" class="bg-primary text-on-primary w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transform transition-all cursor-pointer relative">
         <span class="material-symbols-outlined text-2xl">shopping_cart</span>
@@ -513,6 +595,50 @@
 
 <!-- Custom Toast Notifications -->
 <div id="toast-container" class="fixed bottom-6 left-6 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+<!-- Payment Modal -->
+<div id="payment-modal" class="fixed inset-0 z-[200] hidden items-center justify-center">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="payment-modal-overlay"></div>
+    <div class="relative bg-surface rounded-2xl w-full max-w-sm mx-4 p-6 shadow-2xl transform transition-transform scale-95 opacity-0 duration-300" id="payment-modal-content">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-3xl">check_circle</span>
+            </div>
+            <h3 class="text-headline-sm font-display-lg text-primary mb-2">Pesanan Tersimpan</h3>
+            <p class="text-body-md text-on-surface-variant mb-6">Selesaikan pembayaran untuk memproses pesanan Anda.</p>
+            
+            <div class="bg-surface-container rounded-lg p-4 mb-6 border border-outline-variant/30">
+                <p class="text-xs text-on-surface-variant uppercase tracking-wider mb-1">Total Pembayaran</p>
+                <p class="text-display-md text-secondary font-bold mb-4" id="payment-total-text">Rp 0</p>
+                
+                <div class="space-y-3 text-sm text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">qr_code_2</span>
+                        <div>
+                            <p class="font-bold text-primary">QRIS / GoPay / OVO</p>
+                            <p class="text-on-surface-variant text-xs">Scan barcode di kasir / minta via WA</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">account_balance</span>
+                        <div>
+                            <p class="font-bold text-primary">BCA 1234567890</p>
+                            <p class="text-on-surface-variant text-xs">a/n Kopi Josjis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <a href="#" target="_blank" id="btn-payment-wa" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded flex items-center justify-center gap-2 transition-colors mb-3">
+                <span class="material-symbols-outlined text-[18px]">chat</span>
+                Konfirmasi via WhatsApp
+            </a>
+            <button id="btn-close-payment" class="w-full bg-surface-container hover:bg-surface-container-high text-primary font-bold py-3.5 rounded transition-colors cursor-pointer">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
 
 <script type="module" src="/src/main.ts"></script>
 </body>

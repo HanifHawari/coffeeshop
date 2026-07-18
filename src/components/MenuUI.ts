@@ -19,14 +19,13 @@ export function injectOrderButtons() {
     if (!card.querySelector('.btn-add-to-cart')) {
       const btn = document.createElement('button');
       btn.className = `w-full mt-4 bg-primary-container text-on-primary font-label-md text-label-md py-2.5 rounded hover:bg-primary transition-all duration-300 flex items-center justify-center gap-2 btn-add-to-cart cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-95`;
+      btn.setAttribute('data-name', title);
+      btn.setAttribute('data-price', price.toString());
+      btn.setAttribute('data-img', imageUrl);
       btn.innerHTML = `
         <span class="material-symbols-outlined text-[18px]">local_cafe</span>
-        Tambah ke Ritual
+        Tambah ke Cart
       `;
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        handleAddCartAction(title, price, imageUrl, btn);
-      });
       card.querySelector('.p-6')?.appendChild(btn);
     }
 
@@ -45,6 +44,23 @@ export function injectOrderButtons() {
     }
   });
 }
+
+// Event Delegation for all 'Tambah ke Cart' buttons (including cloned ones for infinite scroll)
+document.addEventListener('click', (e) => {
+  const target = e.target as HTMLElement;
+  const btn = target.closest('.btn-add-to-cart') as HTMLButtonElement;
+  
+  if (btn) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const name = btn.getAttribute('data-name') || '';
+    const price = parseInt(btn.getAttribute('data-price') || '0', 10);
+    const img = btn.getAttribute('data-img') || '';
+    
+    handleAddCartAction(name, price, img, btn);
+  }
+});
 
 function handleAddCartAction(name: string, price: number, img: string, buttonElement: HTMLButtonElement) {
   addToCart(name, price, img);
@@ -69,7 +85,7 @@ function handleAddCartAction(name: string, price: number, img: string, buttonEle
     }, 1000);
   }, 400);
 
-  showToast(`Berhasil menambahkan 1x ${name} ke ritual Anda.`, 'success');
+  showToast(`Berhasil menambahkan 1x ${name} ke cart Anda.`, 'success');
 
   const badges = [
     document.getElementById('cart-count'),

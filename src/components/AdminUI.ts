@@ -1,6 +1,8 @@
-import type { Order, ContactConfig } from '../types';
+import type { ContactConfig } from '../types';
 import { formatCurrency, showToast } from '../utils/helpers';
-import { fetchAndApplyConfig } from '../api/mockApi.ts';
+import { fetchAndApplyConfig, saveConfig } from '../api/configApi';
+import { fetchOrders, updateOrderStatus } from '../api/orderApi';
+import { supabase } from '../api/supabase';
 
 export function initAdminUI() {
   const tabOrders = document.getElementById('tab-orders');
@@ -8,6 +10,7 @@ export function initAdminUI() {
   const panelOrders = document.getElementById('panel-orders');
   const panelConfig = document.getElementById('panel-config');
 
+  // Handle Tabs
   tabOrders?.addEventListener('click', () => {
     tabOrders.classList.add('border-secondary', 'text-secondary');
     tabOrders.classList.remove('border-transparent', 'text-outline');
@@ -16,7 +19,7 @@ export function initAdminUI() {
 
     panelOrders?.classList.remove('hidden');
     panelConfig?.classList.add('hidden');
-    fetchAdminOrders();
+    renderAdminOrders();
   });
 
   tabConfig?.addEventListener('click', () => {
@@ -30,17 +33,80 @@ export function initAdminUI() {
   });
 
   setupConfigForm();
+  setupAuth();
 }
 
-export async function fetchAdminOrders() {
+function setupAuth() {
+  const loginForm = document.getElementById('admin-login-form');
+  const loginView = document.getElementById('admin-login-view');
+  const dashboardView = document.getElementById('admin-dashboard-view');
+  const logoutBtn = document.getElementById('admin-logout-btn');
+
+  // Listen for auth state changes
+  supabase.auth.onAuthStateChange((_event, session) => {
+    if (session) {
+      // Logged in
+      loginView?.classList.add('hidden');
+      dashboardView?.classList.remove('hidden');
+      dashboardView?.classList.add('flex');
+      logoutBtn?.classList.remove('hidden');
+      renderAdminOrders();
+    } else {
+      // Logged out
+      loginView?.classList.remove('hidden');
+      dashboardView?.classList.add('hidden');
+      dashboardView?.classList.remove('flex');
+      logoutBtn?.classList.add('hidden');
+    }
+  });
+
+  // Handle Login
+  loginForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = (document.getElementById('login-email') as HTMLInputElement).value;
+    const password = (document.getElementById('login-password') as HTMLInputElement).value;
+    const submitBtn = document.getElementById('login-submit-btn') as HTMLButtonElement;
+    
+    const origText = submitBtn.innerHTML;
+    submitBtn.innerHTML = 'Memproses...';
+    submitBtn.disabled = true;
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+      showToast('Login berhasil', 'success');
+      (loginForm as HTMLFormElement).reset();
+    } catch (err: any) {
+      showToast(err.message || 'Login gagal. Periksa kembali email dan password.', 'error');
+    } finally {
+      submitBtn.innerHTML = origText;
+      submitBtn.disabled = false;
+    }
+  });
+
+  // Handle Logout
+  logoutBtn?.addEventListener('click', async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      showToast('Berhasil logout', 'success');
+    } catch (err: any) {
+      showToast('Gagal logout', 'error');
+    }
+  });
+}
+
+export async function renderAdminOrders() {
   const emptyState = document.getElementById('admin-orders-empty');
   const listEl = document.getElementById('admin-orders-list');
   if (!listEl || !emptyState) return;
 
   try {
-    // Mock Fetching Orders from localStorage
-    const saved = localStorage.getItem('mockOrders');
-    const orders: Order[] = saved ? JSON.parse(saved) : [];
+    const orders = await fetchOrders();
 
     if (orders.length === 0) {
       emptyState.classList.remove('hidden');
@@ -52,7 +118,7 @@ export async function fetchAdminOrders() {
     listEl.classList.remove('hidden');
     listEl.innerHTML = '';
 
-    orders.forEach((order, index) => {
+    orders.forEach((order) => {
       const dateText = new Date(order.createdAt).toLocaleString('id-ID', {
         dateStyle: 'medium',
         timeStyle: 'short'
@@ -101,9 +167,7 @@ export async function fetchAdminOrders() {
         ` : ''}
         
         <div class="flex gap-2 text-xs">
-          <a href="https://wa.me/${order.whatsapp.replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(order.customerName)}%20dari%20The%20Quiet%20Ritual" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded flex items-center justify-center gap-1 font-bold">
-            <span class="material-symbols-outlined text-[14px]">chat</span> Chat WA
-          </a>
+
           ${order.status === 'pending' ? `
             <button class="flex-1 bg-primary text-white py-1.5 rounded font-bold cursor-pointer hover:bg-primary-container btn-complete" data-id="${order.id}">Selesai</button>
             <button class="bg-outline-variant hover:bg-rose-600 hover:text-white text-primary px-3 py-1.5 rounded font-bold cursor-pointer btn-cancel" data-id="${order.id}">Batal</button>
@@ -112,12 +176,12 @@ export async function fetchAdminOrders() {
       `;
 
       orderCard.querySelector('.btn-complete')?.addEventListener('click', async () => {
-        await updateStatus(index, 'completed');
+        await handleUpdateStatus(order.id, 'completed');
       });
 
       orderCard.querySelector('.btn-cancel')?.addEventListener('click', async () => {
         if (confirm('Yakin ingin membatalkan pesanan ini?')) {
-          await updateStatus(index, 'cancelled');
+          await handleUpdateStatus(order.id, 'cancelled');
         }
       });
 
@@ -128,16 +192,14 @@ export async function fetchAdminOrders() {
   }
 }
 
-async function updateStatus(index: number, status: 'completed' | 'cancelled') {
+async function handleUpdateStatus(id: string, status: 'completed' | 'cancelled') {
   try {
-    const saved = localStorage.getItem('mockOrders');
-    const orders: Order[] = saved ? JSON.parse(saved) : [];
-    
-    if (orders[index]) {
-      orders[index].status = status;
-      localStorage.setItem('mockOrders', JSON.stringify(orders));
+    const success = await updateOrderStatus(id, status);
+    if (success) {
       showToast(`Status pesanan diperbarui menjadi ${status === 'completed' ? 'Selesai' : 'Batal'}.`, 'success');
-      fetchAdminOrders();
+      renderAdminOrders();
+    } else {
+      throw new Error();
     }
   } catch {
     showToast('Gagal memperbarui status pesanan', 'error');
@@ -162,21 +224,29 @@ function setupConfigForm() {
       email: cfgEmail,
       address: cfgAddress,
       hours: cfgHours,
-      phone: '' // keeping phone empty or add if needed
+      phone: ''
     };
 
+    const submitBtn = configForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const origText = submitBtn.innerHTML;
+    submitBtn.innerHTML = 'Menyimpan...';
+
     try {
-      // Save locally for phase 1 mock
-      localStorage.setItem('mockConfig', JSON.stringify(newConfig));
-      showToast('Konfigurasi info kontak berhasil diperbarui (Lokal)!', 'success');
-      fetchAndApplyConfig(); // Immediately update public links on page
-      
-      const overlay = document.getElementById('drawer-overlay');
-      const drawer = document.getElementById('admin-drawer');
-      overlay?.classList.remove('active');
-      drawer?.classList.remove('active');
+      const success = await saveConfig(newConfig);
+      if (success) {
+        showToast('Konfigurasi berhasil diperbarui di Supabase!', 'success');
+        fetchAndApplyConfig(); // refresh the public DOM
+        const overlay = document.getElementById('drawer-overlay');
+        const drawer = document.getElementById('admin-drawer');
+        overlay?.classList.remove('active');
+        drawer?.classList.remove('active');
+      } else {
+        throw new Error();
+      }
     } catch {
       showToast('Gagal menyimpan konfigurasi.', 'error');
+    } finally {
+      submitBtn.innerHTML = origText;
     }
   });
 }

@@ -1,5 +1,6 @@
 import { cart, updateQuantity, subscribeCart, clearCart } from '../store/cartStore';
 import { formatCurrency, showToast } from '../utils/helpers';
+import { createOrder } from '../api/orderApi';
 
 export function initCartUI() {
   subscribeCart(renderCartUI);
@@ -71,6 +72,8 @@ function setupOrderSubmission() {
     const formData = new FormData(orderForm as HTMLFormElement);
     const customerName = formData.get('customerName') as string;
     const whatsapp = formData.get('whatsapp') as string;
+    const email = formData.get('email') as string;
+    const notes = formData.get('notes') as string;
     
     // Calculate total price
     const totalPrice = cart.reduce((acc, curr) => acc + (curr.item.price * curr.item.quantity), 0);
@@ -82,38 +85,57 @@ function setupOrderSubmission() {
     submitBtn.innerHTML = `<span class="material-symbols-outlined text-lg animate-spin">sync</span> Mengirimkan Pesanan...`;
 
     try {
-      // Mock Saving Order (to be replaced by Supabase in Phase 2)
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
-      
-      // We will save to localStorage for now so Admin can see it
-      const savedOrders = JSON.parse(localStorage.getItem('mockOrders') || '[]');
-      savedOrders.unshift({
-        id: 'TR-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
-        customerName,
-        whatsapp,
-        email: formData.get('email') as string,
-        notes: formData.get('notes') as string,
-        items: orderItems,
-        totalPrice,
-        createdAt: new Date().toISOString(),
-        status: 'pending'
-      });
-      localStorage.setItem('mockOrders', JSON.stringify(savedOrders));
+      const success = await createOrder(customerName, whatsapp, email, notes, orderItems, totalPrice);
 
-      showToast('Pesanan berhasil disimpan secara lokal! (Fase 1)', 'success');
-      
-      clearCart();
-      (orderForm as HTMLFormElement).reset();
-      
-      const overlay = document.getElementById('drawer-overlay');
-      const drawer = document.getElementById('cart-drawer');
-      overlay?.classList.remove('active');
-      drawer?.classList.remove('active');
+      if (success) {
+        showToast('Pesanan berhasil disimpan di database (Supabase)!', 'success');
+        
+        clearCart();
+        (orderForm as HTMLFormElement).reset();
+        
+        const overlay = document.getElementById('drawer-overlay');
+        const drawer = document.getElementById('cart-drawer');
+        overlay?.classList.remove('active');
+        drawer?.classList.remove('active');
 
-      setTimeout(() => {
-        alert(`Terima kasih ${customerName}!\nPesanan Anda telah tersimpan dengan total ${formatCurrency(totalPrice)}.\nAdmin kami akan menghubungi Anda melalui WhatsApp.`);
-      }, 500);
-
+        setTimeout(() => {
+          // Show Payment Modal
+          const modal = document.getElementById('payment-modal');
+          const modalContent = document.getElementById('payment-modal-content');
+          const totalText = document.getElementById('payment-total-text');
+          const btnWA = document.getElementById('btn-payment-wa') as HTMLAnchorElement;
+          const btnClose = document.getElementById('btn-close-payment');
+          
+          if (modal && modalContent && totalText && btnWA && btnClose) {
+            // Retrieve whatsapp config
+            const whatsappNumber = window.localStorage.getItem('config_whatsapp') || '628123456789';
+            
+            totalText.innerText = formatCurrency(totalPrice);
+            btnWA.href = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=Halo%20Kopi%20Josjis,%20saya%20sudah%20melakukan%20pembayaran%20untuk%20pesanan%20atas%20nama%20${encodeURIComponent(customerName)}%20sebesar%20${encodeURIComponent(formatCurrency(totalPrice))}.%20Berikut%20bukti%20transfernya:`;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            // Animate in
+            setTimeout(() => {
+              modalContent.classList.remove('scale-95', 'opacity-0');
+              modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            
+            const closeModal = () => {
+              modalContent.classList.remove('scale-100', 'opacity-100');
+              modalContent.classList.add('scale-95', 'opacity-0');
+              setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+              }, 300);
+            };
+            
+            btnClose.onclick = closeModal;
+          }
+        }, 300);
+      } else {
+        throw new Error();
+      }
     } catch (err) {
       showToast('Gagal mengirim pesanan, coba lagi.', 'error');
     } finally {

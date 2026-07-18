@@ -57,20 +57,37 @@ export function initScrollAnimations() {
     duration: 0.8
   });
 
-  gsap.from('.menu-card', {
-    scrollTrigger: {
-      trigger: '#menu',
-      start: 'top 75%'
-    },
-    y: 50,
-    opacity: 0,
-    duration: 0.8,
-    stagger: 0.2,
-    ease: "back.out(1.2)"
-  });
+  const menuGrid = document.querySelector('#menu-scroll-container');
+  if (menuGrid) {
+    // We only animate the cards inside the container
+    const menuItems = gsap.utils.toArray('.menu-card');
+    
+    const menuTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#menu',
+        start: 'top 80%',
+        end: 'center center',
+        scrub: 1.5,
+      }
+    });
+
+    menuTl.from(menuItems, {
+      y: (_: number, target: HTMLElement) => {
+        const gridRect = menuGrid.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        return (gridRect.top + gridRect.height / 2) - (targetRect.top + targetRect.height / 2);
+      },
+      scale: 0.3,
+      opacity: 0,
+      rotation: () => Math.random() * 30 - 15,
+      transformOrigin: "center center",
+      stagger: 0,
+      ease: "power2.out"
+    });
+  }
 
 
-  // Gallery stagger
+  // Gallery Sticky Stacking / Unravel Reveal
   gsap.from('.gallery-header > *', {
     scrollTrigger: {
       trigger: '#gallery',
@@ -81,17 +98,41 @@ export function initScrollAnimations() {
     duration: 0.8
   });
 
-  gsap.from('.gallery-item', {
-    scrollTrigger: {
-      trigger: '#gallery',
-      start: 'top 80%'
-    },
-    scale: 0.9,
-    opacity: 0,
-    duration: 0.8,
-    stagger: 0.15,
-    ease: "power2.out"
-  });
+  const galleryGrid = document.querySelector('#gallery .grid');
+  if (galleryGrid) {
+    const galleryItems = gsap.utils.toArray('.gallery-item');
+    
+    // We create a ScrollTrigger timeline with scrub so it unravels exactly as user scrolls
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#gallery',
+        start: 'top 80%',
+        end: 'center center',
+        scrub: 1.5, // Smooth scrub
+      }
+    });
+
+    tl.from(galleryItems, {
+      x: (_: number, target: HTMLElement) => {
+        const gridRect = galleryGrid.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        // Distance to center X
+        return (gridRect.left + gridRect.width / 2) - (targetRect.left + targetRect.width / 2);
+      },
+      y: (_: number, target: HTMLElement) => {
+        const gridRect = galleryGrid.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        // Distance to center Y
+        return (gridRect.top + gridRect.height / 2) - (targetRect.top + targetRect.height / 2);
+      },
+      scale: 0.3,
+      opacity: 0,
+      rotation: () => Math.random() * 60 - 30, // Messy stacked rotation
+      transformOrigin: "center center",
+      stagger: 0.05,
+      ease: "power2.out"
+    });
+  }
   
   // Footer fade in
   gsap.from('.footer-content > *', {
