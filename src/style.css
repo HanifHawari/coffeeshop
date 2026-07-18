@@ -1,0 +1,90 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer utilities {
+    .nav-scrolled {
+        @apply !bg-primary-container/95 !text-surface !shadow-md !backdrop-blur-md;
+    }
+    .nav-scrolled .nav-link {
+        @apply !text-inverse-primary;
+    }
+    .nav-scrolled .brand-text {
+        @apply !text-surface;
+    }
+    
+    .ambient-shadow {
+        box-shadow: 0 4px 20px rgba(74, 44, 42, 0.05);
+    }
+    
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(calc(-50% - 1rem)); }
+    }
+    .animate-marquee {
+        animation: marquee 35s linear infinite;
+    }
+    .animate-marquee:hover {
+        animation-play-state: paused;
+    }
+    
+    .gallery-item:hover img {
+        transform: scale(1.05);
+    }
+    .gallery-item:hover .overlay {
+        opacity: 1;
+    }
+
+    /* Custom Drawer Slide-In Styles */
+    .drawer-overlay {
+        @apply fixed inset-0 bg-primary/40 backdrop-blur-sm z-[80] transition-opacity duration-300 opacity-0 pointer-events-none;
+    }
+    .drawer-overlay.active {
+        @apply opacity-100 pointer-events-auto;
+    }
+    .drawer-panel {
+        @apply fixed top-0 right-0 h-full w-full sm:w-[450px] bg-surface z-[90] shadow-2xl transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col;
+    }
+    .drawer-panel.active {
+        @apply translate-x-0;
+    }
+
+    /* Admin Drawer can open from left for symmetry */
+    .drawer-panel-left {
+        @apply fixed top-0 left-0 h-full w-full sm:w-[500px] bg-surface z-[90] shadow-2xl transform -translate-x-full transition-transform duration-500 ease-in-out flex flex-col;
+    }
+    .drawer-panel-left.active {
+        @apply translate-x-0;
+    }
+
+    /* Custom steam rising animation */
+    @keyframes steam {
+        0% {
+            transform: translateY(0) scaleX(1);
+            opacity: 0;
+        }
+        15% {
+            opacity: 0.4;
+        }
+        50% {
+            transform: translateY(-25px) scaleX(1.3) rotate(5deg);
+            opacity: 0.2;
+        }
+        100% {
+            transform: translateY(-60px) scaleX(1.6) rotate(-5deg);
+            opacity: 0;
+        }
+    }
+    .steam-particle {
+        animation: steam 4s ease-in-out infinite;
+    }
+
+    /* Pulse active cart badge */
+    @keyframes pulse-badge {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.25); }
+    }
+    .badge-pulse {
+        animation: pulse-badge 0.3s ease-out;
+    }
+}
+
