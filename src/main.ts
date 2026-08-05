@@ -11,8 +11,7 @@ import { injectOrderButtons } from './components/MenuUI';
 import { fetchAndApplyConfig } from './api/configApi';
 import { setupNavigationListeners } from './utils/navigation';
 
-// Initial Launch sequence
-document.addEventListener('DOMContentLoaded', () => {
+const initApp = () => {
   initLoader();
   initNavbar();
   // Load custom backend components
@@ -41,4 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-});
+};
+
+// Initial Launch sequence
+if (document.readyState !== 'loading') {
+  initApp();
+} else {
+  document.addEventListener('DOMContentLoaded', initApp);
+}
