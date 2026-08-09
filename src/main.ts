@@ -12,14 +12,15 @@ import { fetchAndApplyConfig } from './api/configApi';
 import { setupNavigationListeners } from './utils/navigation';
 
 const initApp = () => {
-  initLoader();
+  initLoader(() => {
+    initScrollAnimations();
+  });
   initNavbar();
   // Load custom backend components
   fetchAndApplyConfig();
   injectOrderButtons();
   
   initCarousel();
-  initScrollAnimations();
   
   setupNavigationListeners();
   

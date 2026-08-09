@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 
-export function initLoader() {
+export function initLoader(onCompleteCallback?: () => void) {
   const loader = document.getElementById('loader');
   const mainContent = document.getElementById('main-content');
   const loaderBar = document.getElementById('loader-bar');
@@ -37,7 +37,10 @@ export function initLoader() {
             opacity: 1,
             y: 0,
             duration: 1,
-            ease: "power3.out"
+            ease: "power3.out",
+            onComplete: () => {
+              if (onCompleteCallback) onCompleteCallback();
+            }
           });
         }
       });

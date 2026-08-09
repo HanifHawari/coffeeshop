@@ -93,7 +93,6 @@ export function initCarousel() {
 
     // 6. Auto-scroll logic (Continuous Marquee Style)
     let animationFrameId: number;
-    let resumeTimeout: ReturnType<typeof setTimeout>;
     let isAutoPlaying = false;
 
     const startAutoPlay = () => {
@@ -120,23 +119,10 @@ export function initCarousel() {
       menuContainer.style.scrollSnapType = 'x mandatory';
     };
 
-    const pauseAutoPlay = () => {
-      stopAutoPlay();
-      clearTimeout(resumeTimeout);
-      resumeTimeout = setTimeout(() => {
-        startAutoPlay();
-      }, 30000); // Resume after 30 seconds of inactivity
-    };
-
     // Start auto-play initially
     startAutoPlay();
 
-    // Pause on interactions
-    menuContainer.addEventListener('touchstart', pauseAutoPlay);
-    menuContainer.addEventListener('mousedown', pauseAutoPlay);
-    menuContainer.addEventListener('wheel', pauseAutoPlay);
-    btnPrev.addEventListener('click', pauseAutoPlay);
-    btnNext.addEventListener('click', pauseAutoPlay);
+    // Auto-play now runs continuously without pausing on interactions as requested.
 
     // Handle resize
     window.addEventListener('resize', () => {
