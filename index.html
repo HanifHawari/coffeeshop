@@ -11,12 +11,12 @@
     <meta property="og:image" content="https://lh3.googleusercontent.com/aida-public/AB6AXuB9QHkF8ntdCSg4k0tGgXnrgPjtQYzpCJkzTCt-l7RG2alokRWvYtznTsKGX8OTIiKwtftLiXq7f998sVnT9ygFNHk4EZarRU5elYmnMVXEjxKUPUM6kBDaUED0TkLO2WfqntdvOtxbUQOn1WkBYuq_5oFGidhydWwcn9QL3YtlvOtLoq-BqqdoKjdzz8e6CjK1lrwR2vE4YfMTxsNcawEvRbQDE0boR_qgEVjPRdKnzngFY9YdpsYkprjlEyyupqn9jRIHOhqY7xQ" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="./src/style.css" />
 </head>
 <body class="bg-surface text-on-surface font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container relative">
 
 <!-- Background Pattern Overlay -->
-<div class="fixed inset-0 z-[-1] pointer-events-none" style="background-image: url('/bg-pattern.png'); background-size: 350px; background-repeat: repeat; opacity: 0.08; mix-blend-mode: multiply;"></div>
+<div class="fixed inset-0 z-[-1] pointer-events-none" style="background-image: url('./bg-pattern.png'); background-size: 350px; background-repeat: repeat; opacity: 0.08; mix-blend-mode: multiply;"></div>
 
 <!-- TopNavBar Shared Component -->
 <nav class="fixed top-0 w-full z-50 transition-all duration-300 ease-in-out bg-surface/90 backdrop-blur-md shadow-sm" id="navbar">
@@ -113,7 +113,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <div class="order-2 lg:order-1 relative about-image">
                     <video autoplay loop muted playsinline class="w-full h-[500px] object-cover rounded-xl ambient-shadow relative z-10">
-                        <source src="/vidio-kopi.mp4" type="video/mp4">
+                        <source src="./vidio-kopi.mp4" type="video/mp4">
                         Video tidak didukung.
                     </video>
                     <div class="absolute -bottom-8 -right-8 w-48 h-48 bg-secondary-fixed rounded-full blur-3xl opacity-30 -z-10"></div>
@@ -680,6 +680,6 @@
     </div>
 </div>
 
-<script type="module" src="/src/main.ts"></script>
+<script type="module" src="./src/main.ts"></script>
 </body>
 </html>

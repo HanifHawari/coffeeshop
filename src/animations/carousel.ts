@@ -21,70 +21,49 @@ export function initCarousel() {
     const originalChildren = Array.from(menuContainer.children) as HTMLElement[];
     if (originalChildren.length === 0) return;
 
-    // Calculate exact width of one set of cards to prevent "ghost space" bugs
     const getCardWidth = () => {
       const firstCard = originalChildren[0];
       return firstCard ? firstCard.offsetWidth + 32 : 352; // 32px = gap-8
     };
 
-    const getJumpWidth = () => originalChildren.length * getCardWidth();
-    
-    // Clone the set TWICE so we have 3 sets total: [Original, Clone 1, Clone 2]
-    originalChildren.forEach(child => {
-      const clone = child.cloneNode(true) as HTMLElement;
-      menuContainer.appendChild(clone);
-    });
-    originalChildren.forEach(child => {
-      const clone = child.cloneNode(true) as HTMLElement;
-      menuContainer.appendChild(clone);
-    });
-
-    // Start in the middle set
-    setTimeout(() => {
-      menuContainer.scrollLeft = getJumpWidth();
-    }, 100);
-
     const scrollAmount = () => getCardWidth();
 
+    let interactionTimeout: ReturnType<typeof setTimeout>;
+    const pauseForInteraction = () => {
+      stopAutoPlay();
+      clearTimeout(interactionTimeout);
+      interactionTimeout = setTimeout(() => {
+        startAutoPlay();
+      }, 600); // 600ms pause to let smooth scroll finish
+    };
+
     btnPrev.addEventListener('click', () => {
-      // Teleport if we are too close to the left edge
-      if (menuContainer.scrollLeft < scrollAmount()) {
-        menuContainer.style.scrollBehavior = 'auto'; // disable smooth scroll for teleport
-        menuContainer.scrollLeft += getJumpWidth();
-      }
-      setTimeout(() => {
-        menuContainer.style.scrollBehavior = 'smooth';
+      pauseForInteraction();
+      menuContainer.style.scrollBehavior = 'smooth';
+      if (menuContainer.scrollLeft <= 0) {
+        // Jika sudah di paling kiri, lompat ke paling kanan
+        menuContainer.scrollLeft = menuContainer.scrollWidth - menuContainer.clientWidth;
+      } else {
         menuContainer.scrollBy({ left: -scrollAmount() });
-        setTimeout(() => { menuContainer.style.scrollBehavior = ''; }, 500);
-      }, 10);
+      }
+      setTimeout(() => { menuContainer.style.scrollBehavior = ''; }, 500);
     });
 
     btnNext.addEventListener('click', () => {
-      // Teleport if we are too close to the right edge
-      if (menuContainer.scrollLeft > menuContainer.scrollWidth - menuContainer.clientWidth - scrollAmount()) {
-        menuContainer.style.scrollBehavior = 'auto';
-        menuContainer.scrollLeft -= getJumpWidth();
-      }
-      setTimeout(() => {
-        menuContainer.style.scrollBehavior = 'smooth';
+      pauseForInteraction();
+      menuContainer.style.scrollBehavior = 'smooth';
+      // -5 sebagai toleransi pembulatan pixel
+      if (menuContainer.scrollLeft >= menuContainer.scrollWidth - menuContainer.clientWidth - 5) {
+        // Jika sudah di paling kanan, kembali ke paling kiri
+        menuContainer.scrollLeft = 0;
+      } else {
         menuContainer.scrollBy({ left: scrollAmount() });
-        setTimeout(() => { menuContainer.style.scrollBehavior = ''; }, 500);
-      }, 10);
-    });
-
-    // Handle user manual scrolling (touchpad, mobile swipe)
-    menuContainer.addEventListener('scroll', () => {
-      const jWidth = getJumpWidth();
-      if (menuContainer.scrollLeft <= 0) {
-        menuContainer.scrollLeft += jWidth;
-      } else if (menuContainer.scrollLeft >= menuContainer.scrollWidth - menuContainer.clientWidth) {
-        menuContainer.scrollLeft -= jWidth;
       }
+      setTimeout(() => { menuContainer.style.scrollBehavior = ''; }, 500);
     });
 
-    // Auto-scroll logic (Continuous Marquee Style)
+    // Auto-scroll logic
     let animationFrameId: number;
-    let resumeTimeout: ReturnType<typeof setTimeout>;
     let isAutoPlaying = false;
 
     const startAutoPlay = () => {
@@ -98,6 +77,12 @@ export function initCarousel() {
       const loop = () => {
         if (!isAutoPlaying) return;
         menuContainer.scrollLeft += 1;
+        
+        // Jika sudah sampai ujung kanan, langsung kembali ke elemen pertama
+        if (menuContainer.scrollLeft >= menuContainer.scrollWidth - menuContainer.clientWidth - 1) {
+           menuContainer.scrollLeft = 0;
+        }
+        
         animationFrameId = requestAnimationFrame(loop);
       };
       animationFrameId = requestAnimationFrame(loop);
@@ -109,22 +94,12 @@ export function initCarousel() {
       menuContainer.style.scrollSnapType = 'x mandatory';
     };
 
-    const pauseAutoPlay = () => {
-      stopAutoPlay();
-      clearTimeout(resumeTimeout);
-      resumeTimeout = setTimeout(() => {
-        startAutoPlay();
-      }, 30000); // Resume after 30 seconds of inactivity
-    };
-
     startAutoPlay();
 
-    // Pause on interactions
-    menuContainer.addEventListener('touchstart', pauseAutoPlay, { passive: true });
-    menuContainer.addEventListener('mousedown', pauseAutoPlay);
-    menuContainer.addEventListener('wheel', pauseAutoPlay, { passive: true });
-    btnPrev.addEventListener('click', pauseAutoPlay);
-    btnNext.addEventListener('click', pauseAutoPlay);
+    // Pause briefly on interactions to prevent fighting with manual scroll/buttons
+    menuContainer.addEventListener('touchstart', pauseForInteraction, { passive: true });
+    menuContainer.addEventListener('mousedown', pauseForInteraction);
+    menuContainer.addEventListener('wheel', pauseForInteraction, { passive: true });
 
     // Handle resize
     window.addEventListener('resize', () => {

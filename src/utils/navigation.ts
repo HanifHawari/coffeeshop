@@ -8,10 +8,12 @@ export function toggleDrawer(drawerId: string, open: boolean) {
   const fabContainer = document.getElementById('fab-container');
 
   if (open) {
+    document.body.style.overflow = 'hidden';
     overlay.classList.add('active');
     drawer.classList.add('active');
     if (fabContainer) fabContainer.classList.add('hidden');
   } else {
+    document.body.style.overflow = '';
     overlay.classList.remove('active');
     drawer.classList.remove('active');
     if (fabContainer) fabContainer.classList.remove('hidden');
@@ -84,6 +86,7 @@ export function setupNavigationListeners() {
     const navbar = document.getElementById('navbar');
     
     if (open) {
+      document.body.style.overflow = 'hidden';
       const scrollbarWidth = window.innerWidth > 768 ? (window.innerWidth - document.documentElement.clientWidth) : 0;
       document.body.style.paddingRight = `${scrollbarWidth}px`;
       if (navbar) navbar.style.paddingRight = `${scrollbarWidth}px`;
@@ -91,6 +94,7 @@ export function setupNavigationListeners() {
       mobileMenu.classList.remove('translate-x-full');
       if (fabContainer) fabContainer.classList.add('hidden');
     } else {
+      document.body.style.overflow = '';
       mobileMenu.classList.add('translate-x-full');
       document.body.style.paddingRight = '';
       if (navbar) navbar.style.paddingRight = '';

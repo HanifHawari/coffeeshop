@@ -1,6 +1,7 @@
 import { cart, updateQuantity, subscribeCart, clearCart } from '../store/cartStore';
 import { formatCurrency, showToast } from '../utils/helpers';
 import { createOrder } from '../api/orderApi';
+import { toggleDrawer } from '../utils/navigation';
 
 export function initCartUI() {
   subscribeCart(renderCartUI);
@@ -93,13 +94,11 @@ function setupOrderSubmission() {
         clearCart();
         (orderForm as HTMLFormElement).reset();
         
-        const overlay = document.getElementById('drawer-overlay');
-        const drawer = document.getElementById('cart-drawer');
-        overlay?.classList.remove('active');
-        drawer?.classList.remove('active');
+        toggleDrawer('cart-drawer', false);
 
         setTimeout(() => {
           // Show Payment Modal
+          document.body.style.overflow = 'hidden';
           const modal = document.getElementById('payment-modal');
           const modalContent = document.getElementById('payment-modal-content');
           const totalText = document.getElementById('payment-total-text');
@@ -127,6 +126,7 @@ function setupOrderSubmission() {
               setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
+                document.body.style.overflow = '';
               }, 300);
             };
             
