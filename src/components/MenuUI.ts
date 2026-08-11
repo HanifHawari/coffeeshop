@@ -18,7 +18,7 @@ export function injectOrderButtons() {
 
     if (!card.querySelector('.btn-add-to-cart')) {
       const btn = document.createElement('button');
-      btn.className = `w-full mt-4 bg-primary-container text-on-primary font-label-md text-label-md py-2.5 rounded hover:bg-primary transition-all duration-300 flex items-center justify-center gap-2 btn-add-to-cart cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-95`;
+      btn.className = `w-full mt-auto bg-primary-container text-on-primary font-label-md text-label-md py-2.5 rounded hover:bg-primary transition-all duration-300 flex items-center justify-center gap-2 btn-add-to-cart cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-95`;
       btn.setAttribute('data-name', title);
       btn.setAttribute('data-price', price.toString());
       btn.setAttribute('data-img', imageUrl);
