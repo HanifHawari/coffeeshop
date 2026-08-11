@@ -16,121 +16,77 @@ export function initCarousel() {
     }, 5000);
   }
 
-  // Menu Carousel Logic
+  // Menu Carousel Logic — simple scrollBy, no DOM cloning
   const menuContainer = document.getElementById('menu-scroll-container');
   const btnPrev = document.getElementById('menu-prev-btn');
   const btnNext = document.getElementById('menu-next-btn');
 
-  if (menuContainer && btnPrev && btnNext) {
-    const scrollAmount = 350; // approximate width of a menu card + gap
-    
-    // We want a seamless infinite scroll.
-    // 1. Get original children and the width of one set.
-    const originalChildren = Array.from(menuContainer.children);
-    const originalScrollWidth = menuContainer.scrollWidth;
-    
-    // 2. Clone the set TWICE so we have 3 sets total: [Original, Clone 1, Clone 2]
-    // This gives us plenty of room to scroll in both directions before teleporting.
-    originalChildren.forEach(child => {
-      const clone = child.cloneNode(true);
-      menuContainer.appendChild(clone);
-    });
-    const jumpWidth = menuContainer.scrollWidth - originalScrollWidth; // The exact width of one set including gap
-    
-    originalChildren.forEach(child => {
-      const clone = child.cloneNode(true);
-      menuContainer.appendChild(clone);
-    });
+  if (!menuContainer || !btnPrev || !btnNext) return;
 
-    // 3. Start in the middle set (Clone 1)
-    // We use a small timeout to let the browser render the clones first.
-    setTimeout(() => {
-      menuContainer.scrollLeft = jumpWidth;
-    }, 100);
+  // Get card width dynamically after render
+  const getScrollAmount = () => {
+    const firstCard = menuContainer.querySelector('.menu-card') as HTMLElement;
+    if (!firstCard) return 350;
+    return firstCard.offsetWidth + 32; // card width + gap (gap-8 = 2rem = 32px)
+  };
 
-    // 4. Handle prev/next buttons
-    btnPrev.addEventListener('click', () => {
-      // Teleport if we are too close to the left edge to allow a full scroll
-      if (menuContainer.scrollLeft < scrollAmount) {
-        menuContainer.style.scrollBehavior = 'auto'; // disable smooth scroll for teleport
-        menuContainer.scrollLeft += jumpWidth;
+  btnPrev.addEventListener('click', () => {
+    menuContainer.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
+  });
+
+  btnNext.addEventListener('click', () => {
+    menuContainer.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
+  });
+
+  // Auto-scroll: desktop only, continuous slow drift, wraps around
+  let animationFrameId: number;
+  let isAutoPlaying = false;
+
+  const startAutoPlay = () => {
+    if (isAutoPlaying || window.innerWidth <= 768) return;
+    isAutoPlaying = true;
+    menuContainer.style.scrollSnapType = 'none';
+
+    const loop = () => {
+      if (!isAutoPlaying) return;
+
+      // Wrap: when near end, jump back to start seamlessly
+      if (menuContainer.scrollLeft >= menuContainer.scrollWidth - menuContainer.clientWidth - 5) {
+        menuContainer.scrollLeft = 0;
+      } else {
+        menuContainer.scrollLeft += 0.8;
       }
-      
-      // Re-enable smooth scrolling for the actual movement
-      setTimeout(() => {
-        menuContainer.style.scrollBehavior = 'smooth';
-        menuContainer.scrollBy({ left: -scrollAmount });
-        // Reset scrollBehavior so we don't interfere with CSS
-        setTimeout(() => { menuContainer.style.scrollBehavior = ''; }, 500);
-      }, 10);
-    });
-    
-    btnNext.addEventListener('click', () => {
-      // Teleport if we are too close to the right edge
-      if (menuContainer.scrollLeft > menuContainer.scrollWidth - menuContainer.clientWidth - scrollAmount) {
-        menuContainer.style.scrollBehavior = 'auto';
-        menuContainer.scrollLeft -= jumpWidth;
-      }
-      
-      setTimeout(() => {
-        menuContainer.style.scrollBehavior = 'smooth';
-        menuContainer.scrollBy({ left: scrollAmount });
-        setTimeout(() => { menuContainer.style.scrollBehavior = ''; }, 500);
-      }, 10);
-    });
-
-    // 5. Handle user manual scrolling (touchpad, mobile swipe)
-    menuContainer.addEventListener('scroll', () => {
-      // If user scrolls past the first set, teleport forward
-      if (menuContainer.scrollLeft <= 0) {
-        menuContainer.scrollLeft += jumpWidth;
-      } 
-      // If user scrolls past the third set, teleport backward
-      else if (menuContainer.scrollLeft >= menuContainer.scrollWidth - menuContainer.clientWidth) {
-        menuContainer.scrollLeft -= jumpWidth;
-      }
-    });
-
-    // 6. Auto-scroll logic (Continuous Marquee Style)
-    let animationFrameId: number;
-    let isAutoPlaying = false;
-
-    const startAutoPlay = () => {
-      stopAutoPlay();
-      // Only enable auto-play on desktop
-      if (window.innerWidth <= 768) return;
-      
-      isAutoPlaying = true;
-      // Disable CSS snapping while auto-playing to prevent jitter
-      menuContainer.style.scrollSnapType = 'none';
-
-      const loop = () => {
-        if (!isAutoPlaying) return;
-        menuContainer.scrollLeft += 1;
-        animationFrameId = requestAnimationFrame(loop);
-      };
       animationFrameId = requestAnimationFrame(loop);
     };
+    animationFrameId = requestAnimationFrame(loop);
+  };
 
-    const stopAutoPlay = () => {
-      isAutoPlaying = false;
-      cancelAnimationFrame(animationFrameId);
-      // Re-enable CSS snapping for manual user scroll
-      menuContainer.style.scrollSnapType = 'x mandatory';
-    };
+  const stopAutoPlay = () => {
+    isAutoPlaying = false;
+    cancelAnimationFrame(animationFrameId);
+    menuContainer.style.scrollSnapType = 'x mandatory';
+  };
 
-    // Start auto-play initially
-    startAutoPlay();
+  startAutoPlay();
 
-    // Auto-play now runs continuously without pausing on interactions as requested.
+  // Pause auto-play on user interaction, resume after idle
+  let resumeTimer: ReturnType<typeof setTimeout>;
+  const handleInteraction = () => {
+    stopAutoPlay();
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(startAutoPlay, 3000);
+  };
 
-    // Handle resize
-    window.addEventListener('resize', () => {
-      if (window.innerWidth <= 768) {
-        stopAutoPlay();
-      } else if (!isAutoPlaying) {
-        startAutoPlay();
-      }
-    });
-  }
+  menuContainer.addEventListener('touchstart', handleInteraction, { passive: true });
+  menuContainer.addEventListener('mousedown', handleInteraction);
+  btnPrev.addEventListener('click', handleInteraction);
+  btnNext.addEventListener('click', handleInteraction);
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth <= 768) {
+      stopAutoPlay();
+    } else if (!isAutoPlaying) {
+      startAutoPlay();
+    }
+  });
 }
