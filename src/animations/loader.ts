@@ -8,6 +8,23 @@ export function initLoader(onCompleteCallback?: () => void) {
   
   if (!loader || !mainContent || !loaderBar || !loaderText) return;
 
+  // Safety fallback: if loader is still visible after 6s, force-hide it
+  const safetyFallback = setTimeout(() => {
+    forceCompleteLoader();
+  }, 6000);
+
+  const forceCompleteLoader = () => {
+    clearTimeout(safetyFallback);
+    loader.style.opacity = '0';
+    loader.style.display = 'none';
+    // Remove Tailwind utility classes that may conflict with GSAP on mobile
+    mainContent.classList.remove('opacity-0', 'translate-y-4');
+    mainContent.style.opacity = '1';
+    mainContent.style.transform = 'translateY(0)';
+    window.scrollTo(0, 0);
+    if (onCompleteCallback) onCompleteCallback();
+  };
+
   const progress = { value: 0 };
 
   // Animate progress bar width and text value
@@ -26,6 +43,7 @@ export function initLoader(onCompleteCallback?: () => void) {
         duration: 0.8,
         delay: 0.2,
         onComplete: () => {
+          clearTimeout(safetyFallback);
           loader.style.display = 'none';
           
           if ('scrollRestoration' in history) {
@@ -33,15 +51,21 @@ export function initLoader(onCompleteCallback?: () => void) {
           }
           window.scrollTo(0, 0);
 
-          gsap.to(mainContent, {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: "power3.out",
-            onComplete: () => {
-              if (onCompleteCallback) onCompleteCallback();
+          // Remove Tailwind classes BEFORE GSAP animates to avoid specificity conflicts on mobile
+          mainContent.classList.remove('opacity-0', 'translate-y-4');
+
+          gsap.fromTo(mainContent, 
+            { opacity: 0, y: 16 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 1,
+              ease: "power3.out",
+              onComplete: () => {
+                if (onCompleteCallback) onCompleteCallback();
+              }
             }
-          });
+          );
         }
       });
     }
