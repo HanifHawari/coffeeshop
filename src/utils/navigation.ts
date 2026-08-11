@@ -1,6 +1,7 @@
 export function toggleDrawer(drawerId: string, open: boolean) {
   const overlay = document.getElementById('drawer-overlay');
   const drawer = document.getElementById(drawerId);
+  const navbar = document.getElementById('navbar');
   if (!drawer || !overlay) return;
 
   if (open) {
