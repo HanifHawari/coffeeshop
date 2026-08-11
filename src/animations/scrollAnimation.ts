@@ -57,7 +57,7 @@ export function initScrollAnimations() {
     duration: 0.8
   });
 
-  const menuGrid = document.querySelector('#menu-scroll-container');
+  const menuGrid = document.querySelector('#infinite-menu-container');
   if (menuGrid) {
     // We only animate the cards inside the container
     const menuItems = gsap.utils.toArray('.menu-card');

@@ -71,5 +71,38 @@
     .badge-pulse {
         animation: pulse-badge 0.3s ease-out;
     }
+
+    /* Infinite Marquee Styles */
+    .marquee-container {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .marquee-track {
+        display: flex;
+        width: max-content;
+        will-change: transform;
+        animation: marquee-scroll var(--marquee-duration, 30s) linear infinite;
+    }
+
+    .marquee-track:hover {
+        animation-play-state: paused;
+    }
+
+    .marquee-group {
+        display: flex;
+        gap: 2rem;
+        flex-shrink: 0;
+        padding-right: 2rem; 
+    }
+
+    @keyframes marquee-scroll {
+        0% {
+            transform: translateZ(0) translateX(0);
+        }
+        100% {
+            transform: translateZ(0) translateX(-50%);
+        }
+    }
 }
 

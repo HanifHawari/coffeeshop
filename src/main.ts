@@ -2,6 +2,7 @@ import './style.css';
 import { initNavbar } from './animations/navbar';
 import { initScrollAnimations } from './animations/scrollAnimation';
 import { initCarousel } from './animations/carousel';
+import { initInfiniteMenu } from './components/InfiniteMenu';
 import gsap from 'gsap';
 
 import { initCartUI } from './components/CartUI';
@@ -14,6 +15,10 @@ const initApp = () => {
   initNavbar();
   // Load custom backend components
   fetchAndApplyConfig();
+  
+  // Render dynamic infinite menu first
+  initInfiniteMenu('infinite-menu-container', 30);
+  // Then inject order buttons into the rendered cards
   injectOrderButtons();
   
   initCarousel();

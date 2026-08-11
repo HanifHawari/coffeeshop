@@ -45,19 +45,27 @@ export async function createOrder(
     if (error) throw error;
     return true;
   } catch (error) {
-    console.error('Failed to create order:', error);
+    console.error('Failed to create order:', JSON.stringify(error, null, 2));
     return false;
   }
 }
 
 export async function updateOrderStatus(id: string, status: 'completed' | 'cancelled'): Promise<boolean> {
   try {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('orders')
       .update({ status })
-      .eq('id', id);
+      .eq('id', id)
+      .select();
 
     if (error) throw error;
+    
+    // Jika tidak ada data yang dikembalikan, berarti baris tidak ter-update (kemungkinan karena RLS atau ID tidak cocok)
+    if (!data || data.length === 0) {
+      console.warn('Update failed: No rows matched or RLS policy prevented update.');
+      return false;
+    }
+    
     return true;
   } catch (error) {
     console.error('Failed to update order status:', error);

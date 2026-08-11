@@ -26,7 +26,7 @@ export function injectOrderButtons() {
         <span class="material-symbols-outlined text-[18px]">local_cafe</span>
         Tambah ke Cart
       `;
-      card.querySelector('.p-6')?.appendChild(btn);
+      card.querySelector('.flex-1')?.appendChild(btn);
     }
 
     if (index % 3 === 0 && !card.querySelector('.steam-container')) {

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Dashboard Admin | Kopi Josjis</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <link rel="stylesheet" href="../src/style.css" />
+</head>
+<body class="bg-background text-on-background font-body min-h-[100dvh] flex flex-col antialiased selection:bg-primary selection:text-white">
+
+<!-- Toast Notifications Container -->
+<div id="toast-container" class="fixed bottom-6 left-6 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+<!-- ======================= -->
+<!--       LOGIN VIEW        -->
+<!-- ======================= -->
+<div id="admin-login-view" class="flex-1 flex flex-col items-center justify-center p-6 bg-surface-container relative overflow-hidden">
+    <!-- Decorative background elements -->
+    <div class="absolute -top-32 -left-32 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-32 -right-32 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
+
+    <div class="bg-surface rounded-2xl shadow-xl w-full max-w-md p-8 relative z-10 border border-outline-variant/30">
+        <div class="text-center mb-8">
+            <span class="material-symbols-outlined text-5xl text-primary mb-2">admin_panel_settings</span>
+            <h2 class="text-3xl font-display-lg text-primary font-bold">Admin Login</h2>
+            <p class="text-on-surface-variant text-sm mt-1">Khusus staf Kopi Josjis</p>
+        </div>
+
+        <form id="admin-login-form" class="space-y-5">
+            <div>
+                <label class="block text-sm font-bold text-primary mb-1">Email</label>
+                <input type="email" id="login-email" required class="w-full bg-surface-container/50 border border-outline-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-on-surface" placeholder="admin@kopijosjis.com">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-primary mb-1">Kata Sandi</label>
+                <div class="relative">
+                    <input type="password" id="login-password" required class="w-full bg-surface-container/50 border border-outline-variant rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-on-surface" placeholder="••••••••">
+                    <button type="button" id="toggle-password-btn" class="absolute inset-y-0 right-0 px-3 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined text-[20px]" id="toggle-password-icon">visibility_off</span>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" id="login-submit-btn" class="w-full bg-primary hover:bg-primary-container text-white py-3.5 rounded-lg font-bold transition-colors mt-4 flex items-center justify-center gap-2 cursor-pointer shadow-md">
+                <span class="material-symbols-outlined text-[20px]">login</span> Masuk Sistem
+            </button>
+        </form>
+        <div class="mt-6 text-center">
+            <a href="/" class="text-sm text-secondary hover:underline flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">arrow_back</span> Kembali ke Website Utama
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= -->
+<!--     DASHBOARD VIEW      -->
+<!-- ======================= -->
+<div id="admin-dashboard-view" class="hidden min-h-screen bg-surface-container w-full flex-col md:flex-row">
+    
+    <!-- Sidebar -->
+    <aside id="admin-sidebar" class="w-full md:w-64 bg-surface border-b md:border-b-0 md:border-r border-outline-variant flex flex-col shadow-sm z-20 sticky top-0 h-auto md:h-screen">
+        <div class="p-6 border-b border-outline-variant flex items-center justify-between md:justify-center">
+            <h1 class="text-2xl font-display-lg text-primary font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary">coffee_maker</span>
+                Josjis Admin
+            </h1>
+            <!-- Mobile Menu Toggle -->
+            <button id="mobile-sidebar-toggle" class="md:hidden text-primary cursor-pointer">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </div>
+        
+        <nav id="sidebar-nav" class="hidden md:flex flex-col flex-1 p-4 gap-2 overflow-y-auto">
+            <button class="nav-tab active flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg text-primary font-semibold bg-primary/10 transition-colors cursor-pointer" data-target="pesanan">
+                <span class="material-symbols-outlined">receipt_long</span> Daftar Pesanan
+            </button>
+            <button class="nav-tab flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container transition-colors cursor-pointer" data-target="pengaturan">
+                <span class="material-symbols-outlined">settings</span> Pengaturan Web
+            </button>
+            
+            <div class="mt-auto pt-4 border-t border-outline-variant">
+                <button id="admin-logout-btn" class="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg text-rose-600 font-bold hover:bg-rose-50 transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined">logout</span> Keluar
+                </button>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-6 md:p-8 overflow-y-auto h-[calc(100vh-80px)] md:h-screen">
+        
+        <!-- Tab: Pesanan -->
+        <section id="tab-pesanan" class="tab-content block max-w-5xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-display-lg text-primary font-bold">Daftar Pesanan</h2>
+                    <p class="text-on-surface-variant mt-1">Kelola pesanan pelanggan yang masuk dari website.</p>
+                </div>
+                <button id="refresh-orders-btn" class="bg-surface border border-outline-variant hover:bg-surface-container text-primary px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors cursor-pointer w-fit">
+                    <span class="material-symbols-outlined text-[20px]">refresh</span> Segarkan
+                </button>
+            </div>
+
+            <div id="admin-orders-empty" class="text-center py-20 bg-surface rounded-2xl border border-outline-variant/30 shadow-sm hidden">
+                <span class="material-symbols-outlined text-6xl text-outline mb-4">inbox</span>
+                <p class="text-body-lg text-on-surface-variant font-medium">Belum ada pesanan masuk.</p>
+            </div>
+
+            <!-- List of Orders goes here -->
+            <div id="admin-orders-list" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- Tab: Pengaturan -->
+        <section id="tab-pengaturan" class="tab-content hidden max-w-3xl mx-auto">
+            <div class="mb-8">
+                <h2 class="text-3xl font-display-lg text-primary font-bold">Pengaturan Kontak & Toko</h2>
+                <p class="text-on-surface-variant mt-1">Perbarui tautan sosial media dan informasi yang tampil di website utama.</p>
+            </div>
+
+            <form id="config-form" class="bg-surface p-6 md:p-8 rounded-2xl border border-outline-variant/30 shadow-sm space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">chat</span> Link WhatsApp
+                        </label>
+                        <input type="url" id="cfg-whatsapp" required class="w-full bg-surface-container/50 border border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm">
+                        <p class="text-[11px] text-on-surface-variant">Contoh: https://wa.me/628...</p>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">map</span> Link Google Maps
+                        </label>
+                        <input type="url" id="cfg-maps" class="w-full bg-surface-container/50 border border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">photo_camera</span> Link Instagram
+                        </label>
+                        <input type="url" id="cfg-instagram" class="w-full bg-surface-container/50 border border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">mail</span> Email
+                        </label>
+                        <input type="email" id="cfg-email" class="w-full bg-surface-container/50 border border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm">
+                    </div>
+                </div>
+
+                <div class="space-y-2 pt-2 border-t border-outline-variant/50">
+                    <label class="block text-sm font-bold text-primary">Jam Buka / Operasional</label>
+                    <input type="text" id="cfg-hours" class="w-full bg-surface-container/50 border border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm" placeholder="Senin - Minggu: 09:00 - 22:00">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-bold text-primary">Alamat Lengkap</label>
+                    <textarea id="cfg-address" rows="3" class="w-full bg-surface-container/50 border border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm"></textarea>
+                </div>
+
+                <div class="pt-4 flex justify-end">
+                    <button type="submit" class="bg-primary hover:bg-primary-container text-white px-8 py-3 rounded-lg font-bold transition-colors cursor-pointer flex items-center gap-2 shadow-md">
+                        <span class="material-symbols-outlined text-[20px]">save</span> Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </section>
+
+    </main>
+</div>
+
+<script type="module" src="../src/admin/main.ts"></script>
+</body>
+</html>
