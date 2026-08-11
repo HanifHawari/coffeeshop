@@ -18,21 +18,6 @@
 <!-- Background Pattern Overlay -->
 <div class="fixed inset-0 z-[-1] pointer-events-none" style="background-image: url('/bg-pattern.png'); background-size: 350px; background-repeat: repeat; opacity: 0.08; mix-blend-mode: multiply;"></div>
 
-<div id="loader" class="fixed inset-0 z-[100] bg-surface flex flex-col items-center justify-center">
-    <img id="loader-video" src="/Coffee-loading.gif" alt="Loading" class="w-32 h-32 object-contain mb-8" />
-    <div class="text-primary text-headline-md font-display-lg mb-8">Kopi josjis</div>
-    
-    <!-- Progress Bar -->
-    <div class="w-64 h-1 bg-surface-container-high rounded-full overflow-hidden relative">
-        <div id="loader-bar" class="absolute top-0 left-0 h-full w-0 bg-[#7C4A3A] rounded-full"></div>
-    </div>
-    
-    <div class="mt-4 flex items-center gap-2">
-        <div class="text-secondary text-label-md tracking-widest uppercase">Menyeduh...</div>
-        <div id="loader-text" class="text-primary font-bold text-label-md">0%</div>
-    </div>
-</div>
-
 <!-- TopNavBar Shared Component -->
 <nav class="fixed top-0 w-full z-50 transition-all duration-300 ease-in-out bg-surface/90 backdrop-blur-md shadow-sm" id="navbar">
     <div class="flex justify-between items-center max-w-max-width mx-auto px-grid-margin py-base">
@@ -98,7 +83,7 @@
     </button>
 </div>
 
-<main class="opacity-0 translate-y-4" id="main-content">
+<main id="main-content">
     <!-- Hero Section -->
     <section id="hero" class="relative min-h-[90vh] flex items-center pt-24 pb-section-gap-mobile md:pb-section-gap-desktop overflow-hidden">
         <div class="max-w-max-width mx-auto px-grid-margin w-full grid grid-cols-1 lg:grid-cols-2 gap-grid-gutter items-center relative z-10">

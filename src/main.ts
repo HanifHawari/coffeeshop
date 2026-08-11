@@ -1,6 +1,5 @@
 import './style.css';
 import { initNavbar } from './animations/navbar';
-import { initLoader } from './animations/loader';
 import { initScrollAnimations } from './animations/scrollAnimation';
 import { initCarousel } from './animations/carousel';
 import gsap from 'gsap';
@@ -12,9 +11,7 @@ import { fetchAndApplyConfig } from './api/configApi';
 import { setupNavigationListeners } from './utils/navigation';
 
 const initApp = () => {
-  initLoader(() => {
-    initScrollAnimations();
-  });
+  initScrollAnimations();
   initNavbar();
   // Load custom backend components
   fetchAndApplyConfig();
