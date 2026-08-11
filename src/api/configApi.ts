@@ -67,8 +67,6 @@ export async function fetchAndApplyConfig() {
   const linkMapsIcon = document.getElementById('link-maps-icon') as HTMLAnchorElement;
   if (linkMapsIcon) linkMapsIcon.href = config.maps;
 
-  const floatWhatsappBtn = document.getElementById('float-whatsapp-btn') as HTMLAnchorElement;
-  if (floatWhatsappBtn) floatWhatsappBtn.href = config.whatsapp;
 
   const footerAddress = document.getElementById('footer-address');
   if (footerAddress) footerAddress.innerText = config.address;

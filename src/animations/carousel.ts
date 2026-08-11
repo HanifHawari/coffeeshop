@@ -74,13 +74,17 @@ export function initCarousel() {
       isAutoPlaying = true;
       menuContainer.style.scrollSnapType = 'none';
 
+      let lastScrollLeft = -1;
       const loop = () => {
         if (!isAutoPlaying) return;
-        menuContainer.scrollLeft += 1;
         
-        // Jika sudah sampai ujung kanan, langsung kembali ke elemen pertama
-        if (menuContainer.scrollLeft >= menuContainer.scrollWidth - menuContainer.clientWidth - 1) {
-           menuContainer.scrollLeft = 0;
+        if (menuContainer.scrollLeft === lastScrollLeft && lastScrollLeft > 0) {
+          // Stuck at the end
+          menuContainer.scrollLeft = 0;
+          lastScrollLeft = 0;
+        } else {
+          lastScrollLeft = menuContainer.scrollLeft;
+          menuContainer.scrollLeft += 1;
         }
         
         animationFrameId = requestAnimationFrame(loop);

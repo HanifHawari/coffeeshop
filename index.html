@@ -19,7 +19,7 @@
 <div class="fixed inset-0 z-[-1] pointer-events-none" style="background-image: url('./bg-pattern.png'); background-size: 350px; background-repeat: repeat; opacity: 0.08; mix-blend-mode: multiply;"></div>
 
 <!-- TopNavBar Shared Component -->
-<nav class="fixed top-0 w-full z-50 transition-all duration-300 ease-in-out bg-surface/90 backdrop-blur-md shadow-sm" id="navbar">
+<nav class="fixed top-0 w-full z-50 transition duration-300 ease-in-out bg-surface/90 backdrop-blur-md shadow-sm" id="navbar">
     <div class="flex justify-between items-center max-w-max-width mx-auto px-grid-margin py-base">
         <a class="text-headline-md font-display-lg text-primary tracking-tight brand-text" href="#">Kopi josjis</a>
         <div class="hidden md:flex space-x-8 items-center">
@@ -31,29 +31,17 @@
         
         <!-- Actions -->
         <div class="flex items-center gap-4">
-            <!-- Mobile Cart Button (hidden on md) -->
             <button class="md:hidden bg-primary-container text-on-primary font-label-md text-label-md p-2.5 rounded hover:bg-primary transition-colors flex items-center gap-2 relative cursor-pointer" id="nav-cart-btn-mobile">
                 <span class="material-symbols-outlined text-lg">shopping_cart</span>
+                <span class="hidden bg-secondary text-white text-[10px] w-5 h-5 rounded-full absolute -top-2 -right-2 flex items-center justify-center font-bold" id="cart-count-mobile">0</span>
             </button>
             
-            <!-- Desktop Action Dropdown (visible on md) -->
+            <!-- Desktop Action Button (visible on md) -->
             <div class="hidden md:block relative z-50">
-                <button class="bg-primary text-on-primary w-11 h-11 rounded-full hover:bg-secondary transition-colors flex items-center justify-center relative cursor-pointer shadow-md" id="desktop-actions-btn">
-                    <span class="material-symbols-outlined text-2xl">local_cafe</span>
-                    <span class="bg-secondary text-white text-[10px] w-5 h-5 rounded-full absolute -top-1 -right-1 flex items-center justify-center font-bold" id="cart-count">0</span>
+                <button class="bg-primary text-on-primary w-11 h-11 rounded-full hover:bg-secondary transition-colors flex items-center justify-center relative cursor-pointer shadow-md" id="nav-cart-btn">
+                    <span class="material-symbols-outlined text-2xl">shopping_cart</span>
+                    <span class="hidden bg-secondary text-white text-[10px] w-5 h-5 rounded-full absolute -top-1 -right-1 flex items-center justify-center font-bold" id="cart-count">0</span>
                 </button>
-                
-                <!-- Dropdown Menu -->
-                <div id="desktop-actions-dropdown" class="absolute top-full right-0 mt-3 w-48 bg-surface rounded-xl shadow-xl border border-outline-variant/30 flex flex-col overflow-hidden transition-all duration-200 transform origin-top-right scale-95 opacity-0 invisible">
-                    <button class="w-full flex items-center gap-3 px-4 py-3 text-primary hover:bg-primary/10 transition-colors text-left cursor-pointer" id="nav-admin-btn">
-                        <span class="material-symbols-outlined text-xl">settings</span>
-                        <span class="font-bold text-label-md">Kelola Toko</span>
-                    </button>
-                    <button class="w-full flex items-center gap-3 px-4 py-3 text-primary hover:bg-primary/10 transition-colors text-left border-t border-outline-variant/30 cursor-pointer" id="nav-cart-btn">
-                        <span class="material-symbols-outlined text-xl">shopping_cart</span>
-                        <span class="font-bold text-label-md flex-1">Cart Saya</span>
-                    </button>
-                </div>
             </div>
             
             <!-- Mobile Menu Trigger -->
@@ -65,7 +53,7 @@
 </nav>
 
 <!-- Mobile Menu Overlay -->
-<div id="mobile-menu" class="fixed inset-y-0 right-0 w-[60vw] max-w-sm z-[60] bg-primary flex flex-col items-center justify-center space-y-8 transform translate-x-full transition-transform duration-300 md:hidden shadow-2xl">
+<div id="mobile-menu" class="fixed top-0 right-0 h-[100dvh] w-[60vw] max-w-sm z-[60] bg-primary flex flex-col items-center justify-center space-y-8 transform translate-x-full transition-transform duration-300 md:hidden shadow-2xl">
     <button id="mobile-menu-close" class="absolute top-6 right-6 p-2 text-on-primary cursor-pointer">
         <span class="material-symbols-outlined text-3xl">close</span>
     </button>
@@ -75,12 +63,6 @@
     <a class="text-headline-sm font-display-lg text-on-primary transition-colors hover:text-primary-fixed mobile-nav-link" href="#menu">Menu</a>
     <a class="text-headline-sm font-display-lg text-on-primary transition-colors hover:text-primary-fixed mobile-nav-link" href="#gallery">Galeri</a>
     
-    <div class="w-16 h-[1px] bg-on-primary/30 my-4"></div>
-    
-    <button class="flex items-center gap-2 text-headline-sm font-display-lg text-on-primary transition-colors hover:text-primary-fixed cursor-pointer" id="mobile-admin-btn">
-        <span class="material-symbols-outlined text-2xl">settings</span>
-        Kelola Toko
-    </button>
 </div>
 
 <main id="main-content">
@@ -466,7 +448,7 @@
 <!-- Shopping Cart Slide-Over Drawer -->
 <div id="cart-drawer" class="drawer-panel">
     <!-- Header -->
-    <div class="p-6 border-b border-outline-variant flex justify-between items-center bg-primary-container text-on-primary">
+    <div class="p-6 border-b border-outline-variant flex justify-between items-center bg-primary-container text-on-primary shrink-0">
         <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-xl text-secondary-fixed">shopping_cart</span>
             <h3 class="font-display-lg text-headline-sm">Cart Saya</h3>
@@ -476,8 +458,10 @@
         </button>
     </div>
 
-    <!-- Scrollable Items List -->
-    <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4">
+    <!-- Main Scrollable Area -->
+    <div class="flex-1 overflow-y-auto flex flex-col">
+        <!-- Scrollable Items List -->
+        <div id="cart-items-container" class="flex-1 p-6 space-y-4">
         <!-- Empy state -->
         <div id="cart-empty-state" class="flex flex-col items-center justify-center h-full text-center space-y-4">
             <span class="material-symbols-outlined text-5xl text-outline-variant animate-bounce">local_cafe</span>
@@ -519,119 +503,12 @@
             </button>
         </form>
     </div>
-</div>
-
-<!-- Admin Dashboard Slide-Over Drawer (Left aligned for split feel) -->
-<div id="admin-drawer" class="drawer-panel-left">
-    <!-- Header -->
-    <div class="p-6 border-b border-outline-variant flex justify-between items-center bg-primary text-on-primary">
-        <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-xl text-secondary-fixed">settings_applications</span>
-            <h3 class="font-display-lg text-headline-sm">Kelola Toko</h3>
-        </div>
-        <div class="flex items-center gap-3">
-            <button id="admin-logout-btn" class="hidden text-xs bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded font-bold cursor-pointer transition-colors">Logout</button>
-            <button id="close-admin-btn" class="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Login View -->
-    <div id="admin-login-view" class="p-6 flex flex-col items-center justify-center h-full">
-        <span class="material-symbols-outlined text-5xl text-primary mb-4">lock</span>
-        <h4 class="text-headline-sm font-display-lg text-primary mb-2">Akses Terbatas</h4>
-        <p class="text-body-md text-on-surface-variant text-center mb-6">Silakan login untuk mengelola toko.</p>
-        
-        <form id="admin-login-form" class="w-full max-w-sm space-y-4">
-            <div>
-                <label class="block text-label-md font-bold text-primary mb-1">Email</label>
-                <input required type="email" id="login-email" class="w-full px-4 py-2.5 rounded border border-outline/30 bg-surface focus:border-secondary focus:outline-none" placeholder="admin@email.com" />
-            </div>
-            <div>
-                <label class="block text-label-md font-bold text-primary mb-1">Password</label>
-                <input required type="password" id="login-password" class="w-full px-4 py-2.5 rounded border border-outline/30 bg-surface focus:border-secondary focus:outline-none" placeholder="••••••••" />
-            </div>
-            <button type="submit" id="login-submit-btn" class="w-full bg-primary text-on-primary font-bold py-3 rounded hover:bg-primary-container transition-colors cursor-pointer shadow-md">
-                Login
-            </button>
-        </form>
-    </div>
-
-    <!-- Admin Dashboard View -->
-    <div id="admin-dashboard-view" class="hidden flex-col h-[calc(100%-80px)]">
-
-    <!-- Admin Tabs Control -->
-    <div class="flex border-b border-outline-variant bg-surface-container">
-        <button id="tab-orders" class="flex-1 py-3 text-center font-bold text-label-md border-b-2 border-secondary text-secondary focus:outline-none transition-colors cursor-pointer">
-            Pesanan Masuk
-        </button>
-        <button id="tab-config" class="flex-1 py-3 text-center font-bold text-label-md border-b-2 border-transparent text-outline hover:text-primary focus:outline-none transition-colors cursor-pointer">
-            Pengaturan Tautan
-        </button>
-    </div>
-
-    <!-- Tab 1: Orders Panel -->
-    <div id="panel-orders" class="flex-1 overflow-y-auto p-6 space-y-4">
-        <div id="admin-orders-empty" class="flex flex-col items-center justify-center h-full text-center py-12 text-outline">
-            <span class="material-symbols-outlined text-4xl mb-2 animate-pulse">receipt_long</span>
-            <p>Belum ada pesanan yang masuk.</p>
-        </div>
-        <div id="admin-orders-list" class="space-y-4 hidden"></div>
-    </div>
-
-    <!-- Tab 2: Link Configurator -->
-    <div id="panel-config" class="flex-1 overflow-y-auto p-6 space-y-6 hidden">
-        <form id="config-form" class="space-y-4 text-left">
-            <p class="text-body-md text-on-surface-variant bg-secondary-fixed/50 p-4 rounded-xl">
-                Ubah tautan dan informasi kontak di bawah ini. Tautan pada tombol, ikon, dan menu kontak di halaman utama akan secara dinamis mengikuti isian ini!
-            </p>
-            <div>
-                <label class="block text-label-md font-bold text-primary mb-1">Link WhatsApp (API/Me)</label>
-                <input required type="url" id="cfg-whatsapp" class="w-full px-4 py-2.5 rounded border border-outline/30 bg-surface text-on-surface focus:outline-none focus:border-secondary transition-colors" />
-            </div>
-            <div>
-                <label class="block text-label-md font-bold text-primary mb-1">Link Google Maps (Koordinat/Lokasi)</label>
-                <input required type="url" id="cfg-maps" class="w-full px-4 py-2.5 rounded border border-outline/30 bg-surface text-on-surface focus:outline-none focus:border-secondary transition-colors" />
-            </div>
-            <div>
-                <label class="block text-label-md font-bold text-primary mb-1">Link Instagram Profile</label>
-                <input required type="url" id="cfg-instagram" class="w-full px-4 py-2.5 rounded border border-outline/30 bg-surface text-on-surface focus:outline-none focus:border-secondary transition-colors" />
-            </div>
-            <div>
-                <label class="block text-label-md font-bold text-primary mb-1">Alamat Email</label>
-                <input required type="text" id="cfg-email" class="w-full px-4 py-2.5 rounded border border-outline/30 bg-surface text-on-surface focus:outline-none focus:border-secondary transition-colors" />
-            </div>
-            <div>
-                <label class="block text-label-md font-bold text-primary mb-1">Alamat Fisik (Teks)</label>
-                <input required type="text" id="cfg-address" class="w-full px-4 py-2.5 rounded border border-outline/30 bg-surface text-on-surface focus:outline-none focus:border-secondary transition-colors" />
-            </div>
-            <div>
-                <label class="block text-label-md font-bold text-primary mb-1">Jam Operasional (Teks)</label>
-                <input required type="text" id="cfg-hours" class="w-full px-4 py-2.5 rounded border border-outline/30 bg-surface text-on-surface focus:outline-none focus:border-secondary transition-colors" />
-            </div>
-            <button type="submit" class="w-full bg-secondary text-white font-bold py-3 rounded hover:bg-primary transition-colors flex items-center justify-center gap-2 cursor-pointer shadow">
-                <span class="material-symbols-outlined">save</span>
-                Simpan & Perbarui Tautan
-            </button>
-        </form>
     </div>
 </div>
 
-<!-- Floating Action Buttons (Symmetry, modern, high-polish) -->
-<div id="fab-container" class="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
-    <!-- Floating Quick Cart -->
-    <button id="float-cart-btn" class="bg-primary text-on-primary w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transform transition-all cursor-pointer relative">
-        <span class="material-symbols-outlined text-2xl">shopping_cart</span>
-        <span class="absolute -top-1 -right-1 bg-secondary text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold" id="float-cart-count">0</span>
-    </button>
-    <!-- Floating WhatsApp Quick Connect -->
-    <a id="float-whatsapp-btn" href="#" target="_blank" class="bg-emerald-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transform transition-all">
-        <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
-            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.62.964 3.206 1.548 5.412 1.549 5.424 0 9.835-4.414 9.838-9.842.002-2.63-1.02-5.1-2.872-6.958C17.172 2.045 14.71 1.019 12.01 1.019c-5.432 0-9.843 4.415-9.846 9.845-.001 2.016.518 3.99 1.502 5.698l-1.002 3.655 3.754-.984zm11.233-6.425c-.3-.15-1.771-.875-2.04-.972-.27-.099-.467-.149-.665.15-.198.298-.767.97-.941 1.168-.173.199-.347.223-.647.074-.3-.15-1.264-.465-2.41-1.487-.892-.796-1.493-1.78-1.668-2.079-.174-.3-.019-.461.13-.61.134-.133.3-.347.45-.52.149-.174.199-.298.298-.497.1-.2.05-.374-.025-.524-.075-.15-.665-1.603-.912-2.195-.24-.579-.48-.5-.665-.51l-.568-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.771-.724 2.02-1.413.248-.689.248-1.279.173-1.403-.075-.124-.272-.198-.57-.347z"/>
-        </svg>
-    </a>
-</div>
+
+
+
 
 <!-- Custom Toast Notifications -->
 <div id="toast-container" class="fixed bottom-6 left-6 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>

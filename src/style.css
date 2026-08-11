@@ -16,13 +16,7 @@
         box-shadow: 0 4px 20px rgba(74, 44, 42, 0.05);
     }
     
-    @keyframes marquee {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(calc(-50% - 1rem)); }
-    }
-    .animate-marquee {
-        animation: marquee 60s linear infinite;
-    }
+
     
     .gallery-item:hover img {
         transform: scale(1.05);
@@ -39,19 +33,13 @@
         @apply opacity-100 pointer-events-auto;
     }
     .drawer-panel {
-        @apply fixed top-0 right-0 h-full w-full sm:w-[450px] bg-surface z-[90] shadow-2xl transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col;
+        @apply fixed top-0 right-0 h-[100dvh] w-full sm:w-[450px] bg-surface z-[90] shadow-2xl transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col;
     }
     .drawer-panel.active {
         @apply translate-x-0;
     }
 
-    /* Admin Drawer can open from left for symmetry */
-    .drawer-panel-left {
-        @apply fixed top-0 left-0 h-full w-full sm:w-[500px] bg-surface z-[90] shadow-2xl transform -translate-x-full transition-transform duration-500 ease-in-out flex flex-col;
-    }
-    .drawer-panel-left.active {
-        @apply translate-x-0;
-    }
+
 
     /* Custom steam rising animation */
     @keyframes steam {

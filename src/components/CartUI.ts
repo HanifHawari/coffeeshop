@@ -14,14 +14,24 @@ function renderCartUI() {
   const cartItemsList = document.getElementById('cart-items-list');
   const cartFooter = document.getElementById('cart-footer');
   const cartCount = document.getElementById('cart-count');
-  const floatCartCount = document.getElementById('float-cart-count');
+  const cartCountMobile = document.getElementById('cart-count-mobile');
   const totalPriceEl = document.getElementById('cart-total-price');
 
   const totalItems = cart.reduce((acc, curr) => acc + curr.item.quantity, 0);
   const totalPrice = cart.reduce((acc, curr) => acc + (curr.item.price * curr.item.quantity), 0);
 
-  if (cartCount) cartCount.innerText = totalItems.toString();
-  if (floatCartCount) floatCartCount.innerText = totalItems.toString();
+  if (cartCount) {
+    cartCount.innerText = totalItems.toString();
+    if (totalItems === 0) cartCount.classList.add('hidden');
+    else cartCount.classList.remove('hidden');
+  }
+  
+  if (cartCountMobile) {
+    cartCountMobile.innerText = totalItems.toString();
+    if (totalItems === 0) cartCountMobile.classList.add('hidden');
+    else cartCountMobile.classList.remove('hidden');
+  }
+
   if (totalPriceEl) totalPriceEl.innerText = formatCurrency(totalPrice);
 
   if (totalItems === 0) {

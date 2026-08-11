@@ -89,7 +89,7 @@ function handleAddCartAction(name: string, price: number, img: string, buttonEle
 
   const badges = [
     document.getElementById('cart-count'),
-    document.getElementById('float-cart-count')
+    document.getElementById('cart-count-mobile')
   ];
   badges.forEach(b => {
     if (b) {

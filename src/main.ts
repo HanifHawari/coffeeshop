@@ -5,7 +5,6 @@ import { initCarousel } from './animations/carousel';
 import gsap from 'gsap';
 
 import { initCartUI } from './components/CartUI';
-import { initAdminUI } from './components/AdminUI';
 import { injectOrderButtons } from './components/MenuUI';
 import { fetchAndApplyConfig } from './api/configApi';
 import { setupNavigationListeners } from './utils/navigation';
@@ -22,7 +21,6 @@ const initApp = () => {
   setupNavigationListeners();
   
   initCartUI();
-  initAdminUI();
 
   // Subtle interactive parallax mouse animation on Hero Image
   const heroImg = document.querySelector('.hero-image');
