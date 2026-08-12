@@ -30,17 +30,20 @@ export async function fetchConfig(): Promise<ContactConfig> {
   }
 }
 
-export async function saveConfig(newConfig: ContactConfig): Promise<boolean> {
+export async function saveConfig(newConfig: ContactConfig): Promise<{ success: boolean; error?: string }> {
   try {
     const { error } = await supabase
       .from('config')
       .upsert({ id: 1, ...newConfig });
     
-    if (error) throw error;
-    return true;
-  } catch (error) {
+    if (error) {
+      console.error('Supabase Upsert Error:', error);
+      return { success: false, error: error.message || error.details || 'Unknown database error' };
+    }
+    return { success: true };
+  } catch (error: any) {
     console.error('Failed to save config to Supabase:', error);
-    return false;
+    return { success: false, error: error.message || 'Network/Server Error' };
   }
 }
 
@@ -49,23 +52,71 @@ export async function fetchAndApplyConfig() {
   
   window.localStorage.setItem('config_whatsapp', config.whatsapp);
 
+  const formatWhatsapp = (wa: string) => {
+    if (!wa) return '#';
+    let cleaned = wa.replace(/[^0-9]/g, '');
+    if (cleaned.startsWith('0')) cleaned = '62' + cleaned.substring(1);
+    return `https://wa.me/${cleaned}`;
+  };
+
+  const formatInstagram = (ig: string) => {
+    if (!ig) return '#';
+    if (ig.startsWith('http')) return ig;
+    let cleaned = ig.replace('@', '');
+    return `https://instagram.com/${cleaned}`;
+  };
+
+  const formatUrl = (url: string) => {
+    if (!url) return '#';
+    if (!url.startsWith('http')) return `https://${url}`;
+    return url;
+  };
+
+  const safeOpen = (e: Event, url: string) => {
+    e.preventDefault();
+    if (url === '#') return;
+    try {
+      const newWin = window.open(url, '_blank');
+      if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
+        window.location.href = url;
+      }
+    } catch (err) {
+      window.location.href = url;
+    }
+  };
+
   const linkMaps = document.getElementById('link-maps') as HTMLAnchorElement;
-  if (linkMaps) linkMaps.href = config.maps;
+  if (linkMaps) {
+    linkMaps.href = formatUrl(config.maps);
+    linkMaps.onclick = (e) => safeOpen(e, formatUrl(config.maps));
+  }
 
   const linkWhatsapp = document.getElementById('link-whatsapp') as HTMLAnchorElement;
-  if (linkWhatsapp) linkWhatsapp.href = config.whatsapp;
+  if (linkWhatsapp) {
+    linkWhatsapp.href = formatWhatsapp(config.whatsapp);
+    linkWhatsapp.onclick = (e) => safeOpen(e, formatWhatsapp(config.whatsapp));
+  }
 
   const linkEmail = document.getElementById('link-email') as HTMLAnchorElement;
-  if (linkEmail) linkEmail.href = `mailto:${config.email}`;
+  if (linkEmail) linkEmail.href = `mailto:${config.email}`; // mailto doesn't need safeOpen
 
   const linkInstagram = document.getElementById('link-instagram') as HTMLAnchorElement;
-  if (linkInstagram) linkInstagram.href = config.instagram;
+  if (linkInstagram) {
+    linkInstagram.href = formatInstagram(config.instagram);
+    linkInstagram.onclick = (e) => safeOpen(e, formatInstagram(config.instagram));
+  }
 
   const linkWhatsappIcon = document.getElementById('link-whatsapp-icon') as HTMLAnchorElement;
-  if (linkWhatsappIcon) linkWhatsappIcon.href = config.whatsapp;
+  if (linkWhatsappIcon) {
+    linkWhatsappIcon.href = formatWhatsapp(config.whatsapp);
+    linkWhatsappIcon.onclick = (e) => safeOpen(e, formatWhatsapp(config.whatsapp));
+  }
 
   const linkMapsIcon = document.getElementById('link-maps-icon') as HTMLAnchorElement;
-  if (linkMapsIcon) linkMapsIcon.href = config.maps;
+  if (linkMapsIcon) {
+    linkMapsIcon.href = formatUrl(config.maps);
+    linkMapsIcon.onclick = (e) => safeOpen(e, formatUrl(config.maps));
+  }
 
 
   const footerAddress = document.getElementById('footer-address');

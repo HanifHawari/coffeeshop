@@ -218,6 +218,7 @@
                 <li><a class="text-body-md font-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer" id="link-hours-anchor" href="#about">Jam Buka</a></li>
                 <li><a class="text-body-md font-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer" id="link-maps" href="#" target="_blank">Lokasi Kami</a></li>
                 <li><a class="text-body-md font-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer" id="link-whatsapp" href="#" target="_blank">WhatsApp Kami</a></li>
+                <li><a class="text-body-md font-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer" id="link-instagram" href="#" target="_blank">Instagram Kami</a></li>
                 <li><a class="text-body-md font-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer" id="link-email" href="#">Email Hubungi</a></li>
             </ul>
         </div>
@@ -234,18 +235,7 @@
         </div>
     </div>
     <div class="max-w-max-width mx-auto mt-16 pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
-        <p class="text-label-md font-label-md text-on-surface-variant">© 2024 Kopi josjis Coffee Roasters. Seluruh hak cipta.</p>
-        <div class="flex space-x-6">
-            <a class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-high" id="link-instagram" href="#" target="_blank" title="Instagram">
-                <span class="material-symbols-outlined text-xl">camera_alt</span>
-            </a>
-            <a class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-high" id="link-whatsapp-icon" href="#" target="_blank" title="WhatsApp">
-                <span class="material-symbols-outlined text-xl">chat</span>
-            </a>
-            <a class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-high" id="link-maps-icon" href="#" target="_blank" title="Lokasi Google Maps">
-                <span class="material-symbols-outlined text-xl">distance</span>
-            </a>
-        </div>
+        <p class="text-label-md font-label-md text-on-surface-variant">© 2026 Kopi josjis Coffee Roasters. Seluruh hak cipta.</p>
     </div>
 </footer>
 
@@ -323,43 +313,188 @@
 <!-- Payment Modal -->
 <div id="payment-modal" class="fixed inset-0 z-[200] hidden items-center justify-center">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="payment-modal-overlay"></div>
-    <div class="relative bg-surface rounded-2xl w-full max-w-sm mx-4 p-6 shadow-2xl transform transition-transform scale-95 opacity-0 duration-300" id="payment-modal-content">
-        <div class="text-center">
-            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+    <div class="relative bg-surface rounded-2xl w-full max-w-sm mx-4 p-6 shadow-2xl transform transition-transform scale-95 opacity-0 duration-300 flex flex-col max-h-[95vh] sm:max-h-[85vh]" id="payment-modal-content">
+        <!-- Header -->
+        <div class="flex-shrink-0 text-center">
+            <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
                 <span class="material-symbols-outlined text-3xl">check_circle</span>
             </div>
-            <h3 class="text-headline-sm font-display-lg text-primary mb-2">Pesanan Tersimpan</h3>
-            <p class="text-body-md text-on-surface-variant mb-6">Selesaikan pembayaran untuk memproses pesanan Anda.</p>
+            <h3 class="text-headline-sm font-display-lg text-primary mb-1">Pesanan Tersimpan</h3>
+            <p class="text-body-md text-on-surface-variant mb-4">Selesaikan pembayaran untuk memproses pesanan Anda.</p>
+        </div>
             
-            <div class="bg-surface-container rounded-lg p-4 mb-6 border border-outline-variant/30">
+        <!-- Scrollable Body -->
+        <div class="flex-1 overflow-y-auto min-h-0 bg-surface-container rounded-lg p-4 mb-4 border border-outline-variant/30 text-left custom-scrollbar">
                 <p class="text-xs text-on-surface-variant uppercase tracking-wider mb-1">Total Pembayaran</p>
                 <p class="text-display-md text-secondary font-bold mb-4" id="payment-total-text">Rp 0</p>
                 
-                <div class="space-y-3 text-sm text-left">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-primary">qr_code_2</span>
-                        <div>
-                            <p class="font-bold text-primary">QRIS / GoPay / OVO</p>
-                            <p class="text-on-surface-variant text-xs">Scan barcode di kasir / minta via WA</p>
+                <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-3">Pilih Metode Pembayaran</p>
+                <div class="space-y-2" id="payment-method-list">
+
+                    <!-- ===== E-Wallet / QRIS ===== -->
+                    <div class="payment-method-group rounded-xl border-2 border-outline-variant bg-surface overflow-hidden transition-all duration-200">
+                        <!-- Header -->
+                        <label class="payment-method-option flex items-center gap-4 p-4 cursor-pointer">
+                            <input type="radio" name="payment-method" value="ewallet" class="hidden" />
+                            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-primary">qr_code_2</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-bold text-primary text-sm">QRIS / E-Wallet</p>
+                                <p class="text-xs text-on-surface-variant">GoPay, OVO, Dana, ShopeePay, QRIS</p>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-5 h-5 rounded-full border-2 border-outline-variant flex items-center justify-center method-radio-indicator flex-shrink-0">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-primary scale-0 transition-transform duration-200 method-radio-dot"></div>
+                                </div>
+                                <span class="material-symbols-outlined text-[18px] text-on-surface-variant method-chevron transition-transform duration-200">expand_more</span>
+                            </div>
+                        </label>
+                        <!-- Sub-options -->
+                        <div class="payment-sub-panel hidden border-t border-outline-variant/30 bg-surface-container/50 px-4 pb-4 pt-3">
+                            <p class="text-[11px] text-on-surface-variant mb-2 font-medium">Pilih platform:</p>
+                            <div class="grid grid-cols-5 gap-2" data-sub-group="ewallet">
+                                <label class="sub-option flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sub-ewallet" value="GoPay" class="hidden" />
+                                    <div class="w-11 h-11 rounded-xl flex items-center justify-center sub-logo-box border-2 border-transparent transition-all duration-150" style="background-color:#00AED6;">
+                                        <span class="text-white font-black text-[10px] leading-none text-center">Go<br>Pay</span>
+                                    </div>
+                                    <span class="text-[10px] text-on-surface-variant font-medium">GoPay</span>
+                                </label>
+                                <label class="sub-option flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sub-ewallet" value="OVO" class="hidden" />
+                                    <div class="w-11 h-11 rounded-xl flex items-center justify-center sub-logo-box border-2 border-transparent transition-all duration-150" style="background-color:#4C3494;">
+                                        <span class="text-white font-black text-[11px]">OVO</span>
+                                    </div>
+                                    <span class="text-[10px] text-on-surface-variant font-medium">OVO</span>
+                                </label>
+                                <label class="sub-option flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sub-ewallet" value="Dana" class="hidden" />
+                                    <div class="w-11 h-11 rounded-xl flex items-center justify-center sub-logo-box border-2 border-transparent transition-all duration-150" style="background-color:#118EEA;">
+                                        <span class="text-white font-black text-[11px]">DANA</span>
+                                    </div>
+                                    <span class="text-[10px] text-on-surface-variant font-medium">Dana</span>
+                                </label>
+                                <label class="sub-option flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sub-ewallet" value="ShopeePay" class="hidden" />
+                                    <div class="w-11 h-11 rounded-xl flex items-center justify-center sub-logo-box border-2 border-transparent transition-all duration-150" style="background-color:#EE4D2D;">
+                                        <span class="text-white font-black text-[9px] leading-none text-center">Shopee<br>Pay</span>
+                                    </div>
+                                    <span class="text-[10px] text-on-surface-variant font-medium">SPay</span>
+                                </label>
+                                <label class="sub-option flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sub-ewallet" value="QRIS" class="hidden" />
+                                    <div class="w-11 h-11 rounded-xl flex items-center justify-center sub-logo-box border-2 border-transparent transition-all duration-150 bg-primary/10">
+                                        <span class="material-symbols-outlined text-primary text-[20px]">qr_code_2</span>
+                                    </div>
+                                    <span class="text-[10px] text-on-surface-variant font-medium">QRIS</span>
+                                </label>
+                            </div>
+                            <div id="ewallet-qris-info" class="text-center mt-4 hidden bg-surface rounded-lg p-3 border border-outline-variant/30 flex flex-col items-center justify-center">
+                                <p class="text-xs text-on-surface-variant mb-2 font-medium">Scan QR Code ini untuk membayar via <span id="ewallet-name-display" class="font-bold text-primary">GoPay</span>:</p>
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Kopi_Josjis_Payment" alt="QRIS" class="w-32 h-32 mx-auto rounded-lg shadow-sm border border-outline-variant/50">
+                                <p class="text-[10px] text-on-surface-variant/80 mt-2">Atau screenshot layar ini, lalu buka aplikasi e-wallet Anda untuk memproses pembayaran sesuai tagihan.</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-primary">account_balance</span>
-                        <div>
-                            <p class="font-bold text-primary">BCA 1234567890</p>
-                            <p class="text-on-surface-variant text-xs">a/n Kopi Josjis</p>
+
+                    <!-- ===== Transfer Bank ===== -->
+                    <div class="payment-method-group rounded-xl border-2 border-outline-variant bg-surface overflow-hidden transition-all duration-200">
+                        <!-- Header -->
+                        <label class="payment-method-option flex items-center gap-4 p-4 cursor-pointer">
+                            <input type="radio" name="payment-method" value="bank" class="hidden" />
+                            <div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-secondary">account_balance</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-bold text-primary text-sm">Transfer Bank</p>
+                                <p class="text-xs text-on-surface-variant">BCA, BRI, Mandiri, BNI, BSI</p>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-5 h-5 rounded-full border-2 border-outline-variant flex items-center justify-center method-radio-indicator flex-shrink-0">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-primary scale-0 transition-transform duration-200 method-radio-dot"></div>
+                                </div>
+                                <span class="material-symbols-outlined text-[18px] text-on-surface-variant method-chevron transition-transform duration-200">expand_more</span>
+                            </div>
+                        </label>
+                        <!-- Sub-options -->
+                        <div class="payment-sub-panel hidden border-t border-outline-variant/30 bg-surface-container/50 px-4 pb-4 pt-3">
+                            <p class="text-[11px] text-on-surface-variant mb-2 font-medium">Pilih bank tujuan:</p>
+                            <div class="grid grid-cols-5 gap-2" data-sub-group="bank">
+                                <label class="sub-option flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sub-bank" value="BCA – 1234567890" class="hidden" />
+                                    <div class="w-11 h-11 rounded-xl flex items-center justify-center sub-logo-box border-2 border-transparent transition-all duration-150" style="background-color:#005BAC;">
+                                        <span class="text-white font-black text-[11px]">BCA</span>
+                                    </div>
+                                    <span class="text-[10px] text-on-surface-variant font-medium">BCA</span>
+                                </label>
+                                <label class="sub-option flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sub-bank" value="BRI – 0987654321" class="hidden" />
+                                    <div class="w-11 h-11 rounded-xl flex items-center justify-center sub-logo-box border-2 border-transparent transition-all duration-150" style="background-color:#003D8F;">
+                                        <span class="text-white font-black text-[11px]">BRI</span>
+                                    </div>
+                                    <span class="text-[10px] text-on-surface-variant font-medium">BRI</span>
+                                </label>
+                                <label class="sub-option flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sub-bank" value="Mandiri – 1122334455" class="hidden" />
+                                    <div class="w-11 h-11 rounded-xl flex items-center justify-center sub-logo-box border-2 border-transparent transition-all duration-150" style="background-color:#003087;">
+                                        <span class="text-white font-black text-[9px] text-center leading-tight">Man<br>diri</span>
+                                    </div>
+                                    <span class="text-[10px] text-on-surface-variant font-medium">Mandiri</span>
+                                </label>
+                                <label class="sub-option flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sub-bank" value="BNI – 5566778899" class="hidden" />
+                                    <div class="w-11 h-11 rounded-xl flex items-center justify-center sub-logo-box border-2 border-transparent transition-all duration-150" style="background-color:#F6821F;">
+                                        <span class="text-white font-black text-[11px]">BNI</span>
+                                    </div>
+                                    <span class="text-[10px] text-on-surface-variant font-medium">BNI</span>
+                                </label>
+                                <label class="sub-option flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sub-bank" value="BSI – 7788990011" class="hidden" />
+                                    <div class="w-11 h-11 rounded-xl flex items-center justify-center sub-logo-box border-2 border-transparent transition-all duration-150" style="background-color:#3D9B35;">
+                                        <span class="text-white font-black text-[11px]">BSI</span>
+                                    </div>
+                                    <span class="text-[10px] text-on-surface-variant font-medium">BSI</span>
+                                </label>
+                            </div>
+                            <p id="bank-account-info" class="text-xs text-on-surface-variant mt-3 hidden bg-surface rounded-lg p-2.5 border border-outline-variant/30">
+                                <!-- Diisi JS -->
+                            </p>
                         </div>
                     </div>
+
+                    <!-- ===== Tunai / Cash ===== -->
+                    <div class="payment-method-group rounded-xl border-2 border-outline-variant bg-surface overflow-hidden transition-all duration-200">
+                        <label class="payment-method-option flex items-center gap-4 p-4 cursor-pointer">
+                            <input type="radio" name="payment-method" value="cash" class="hidden" />
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-amber-600">payments</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-bold text-primary text-sm">Bayar di Tempat</p>
+                                <p class="text-xs text-on-surface-variant">Cash / Kartu Debit / EDC</p>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-5 h-5 rounded-full border-2 border-outline-variant flex items-center justify-center method-radio-indicator flex-shrink-0">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-primary scale-0 transition-transform duration-200 method-radio-dot"></div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
                 </div>
             </div>
             
-            <a href="#" target="_blank" id="btn-payment-wa" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded flex items-center justify-center gap-2 transition-colors mb-3">
-                <span class="material-symbols-outlined text-[18px]">chat</span>
-                Konfirmasi via WhatsApp
-            </a>
-            <button id="btn-close-payment" class="w-full bg-surface-container hover:bg-surface-container-high text-primary font-bold py-3.5 rounded transition-colors cursor-pointer">
-                Tutup
-            </button>
+            <!-- Footer -->
+            <div class="flex-shrink-0 mt-auto pt-2">
+                <a href="#" target="_blank" id="btn-payment-wa" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded flex items-center justify-center gap-2 transition-colors mb-2">
+                    <span class="material-symbols-outlined text-[18px]">chat</span>
+                    Konfirmasi via WhatsApp
+                </a>
+                <button id="btn-close-payment" class="w-full bg-surface hover:bg-surface-container-high text-primary border border-outline-variant/50 font-bold py-3.5 rounded transition-colors cursor-pointer">
+                    Tutup
+                </button>
+            </div>
         </div>
     </div>
 </div>

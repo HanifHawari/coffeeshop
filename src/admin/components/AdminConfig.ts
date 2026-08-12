@@ -30,15 +30,15 @@ export function setupConfigForm() {
     submitBtn.disabled = true;
 
     try {
-      const success = await saveConfig(newConfig);
-      if (success) {
-        showToast('Konfigurasi berhasil diperbarui di Supabase!', 'success');
-        // Refresh the local config object (though in this context we might not need to render it locally, 
-        // it's good practice)
+      const result = await saveConfig(newConfig);
+      if (result.success) {
+        showToast('Konfigurasi berhasil diperbarui!', 'success');
       } else {
-        throw new Error();
+        showToast(`Gagal: ${result.error}`, 'error');
+        console.error('Config Error Details:', result.error);
+        alert(`Gagal menyimpan ke Supabase:\n${result.error}\n\nPastikan struktur tabel config benar dan RLS policy mengizinkan update.`);
       }
-    } catch {
+    } catch (err: any) {
       showToast('Gagal menyimpan konfigurasi.', 'error');
     } finally {
       submitBtn.innerHTML = origHtml;

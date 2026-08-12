@@ -12,7 +12,10 @@
     
     <link rel="stylesheet" href="../src/style.css" />
 </head>
-<body class="bg-background text-on-background font-body min-h-[100dvh] flex flex-col antialiased selection:bg-primary selection:text-white">
+<body class="bg-surface text-on-background font-body min-h-[100dvh] flex flex-col antialiased selection:bg-primary selection:text-white relative">
+
+<!-- Background Pattern Overlay (sama dengan website utama) -->
+<div class="fixed inset-0 z-[-1] pointer-events-none" style="background-image: url('../bg-pattern.png'); background-size: 350px; background-repeat: repeat; opacity: 0.08; mix-blend-mode: multiply;"></div>
 
 <!-- Toast Notifications Container -->
 <div id="toast-container" class="fixed bottom-6 left-6 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
@@ -61,10 +64,10 @@
 <!-- ======================= -->
 <!--     DASHBOARD VIEW      -->
 <!-- ======================= -->
-<div id="admin-dashboard-view" class="hidden min-h-screen bg-surface-container w-full flex-col md:flex-row">
+<div id="admin-dashboard-view" class="hidden min-h-screen bg-transparent w-full flex-col md:flex-row">
     
     <!-- Sidebar -->
-    <aside id="admin-sidebar" class="w-full md:w-64 bg-surface border-b md:border-b-0 md:border-r border-outline-variant flex flex-col shadow-sm z-20 sticky top-0 h-auto md:h-screen">
+    <aside id="admin-sidebar" class="w-full md:w-64 bg-surface/80 backdrop-blur-md border-b md:border-b-0 md:border-r border-outline-variant flex flex-col shadow-sm z-20 sticky top-0 h-auto md:h-screen">
         <div class="p-6 border-b border-outline-variant flex items-center justify-between md:justify-center">
             <h1 class="text-2xl font-display-lg text-primary font-bold flex items-center gap-2">
                 <span class="material-symbols-outlined text-secondary">coffee_maker</span>
@@ -102,10 +105,50 @@
                     <h2 class="text-3xl font-display-lg text-primary font-bold">Daftar Pesanan</h2>
                     <p class="text-on-surface-variant mt-1">Kelola pesanan pelanggan yang masuk dari website.</p>
                 </div>
-                <button id="refresh-orders-btn" class="bg-surface border border-outline-variant hover:bg-surface-container text-primary px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors cursor-pointer w-fit">
-                    <span class="material-symbols-outlined text-[20px]">refresh</span> Segarkan
-                </button>
+                <div class="flex items-center gap-3">
+                    <button id="clear-archive-btn" class="bg-surface border border-rose-300 hover:bg-rose-600 hover:text-white hover:border-rose-600 text-rose-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors cursor-pointer w-fit">
+                        <span class="material-symbols-outlined text-[20px]">delete_sweep</span> Bersihkan Arsip
+                    </button>
+                    <button id="refresh-orders-btn" class="bg-surface border border-outline-variant hover:bg-surface-container text-primary px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors cursor-pointer w-fit">
+                        <span class="material-symbols-outlined text-[20px]">refresh</span> Segarkan
+                    </button>
+                </div>
             </div>
+
+            <!-- Stats Cards -->
+            <div id="dashboard-stats" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                <!-- Card: Total Pesanan Hari Ini -->
+                <div class="bg-surface border border-outline-variant/30 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span class="material-symbols-outlined text-primary text-2xl">receipt_long</span>
+                    </div>
+                    <div>
+                        <p class="text-xs text-on-surface-variant font-medium">Total Pesanan (Hari Ini)</p>
+                        <p id="stat-total-orders" class="text-3xl font-bold text-primary font-display-lg">–</p>
+                    </div>
+                </div>
+                <!-- Card: Total Pendapatan Hari Ini -->
+                <div class="bg-surface border border-outline-variant/30 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                        <span class="material-symbols-outlined text-secondary text-2xl">payments</span>
+                    </div>
+                    <div>
+                        <p class="text-xs text-on-surface-variant font-medium">Pendapatan (Hari Ini)</p>
+                        <p id="stat-total-revenue" class="text-2xl font-bold text-secondary font-display-lg leading-tight">–</p>
+                    </div>
+                </div>
+                <!-- Card: Pesanan Menunggu -->
+                <div class="bg-surface border border-outline-variant/30 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                        <span class="material-symbols-outlined text-amber-600 text-2xl">pending_actions</span>
+                    </div>
+                    <div>
+                        <p class="text-xs text-on-surface-variant font-medium">Pesanan Menunggu</p>
+                        <p id="stat-pending-orders" class="text-3xl font-bold text-amber-600 font-display-lg">–</p>
+                    </div>
+                </div>
+            </div>
+            <!-- End Stats Cards -->
 
             <div id="admin-orders-empty" class="text-center py-20 bg-surface rounded-2xl border border-outline-variant/30 shadow-sm hidden">
                 <span class="material-symbols-outlined text-6xl text-outline mb-4">inbox</span>

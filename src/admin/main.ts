@@ -4,6 +4,26 @@ import { renderAdminOrders } from './components/AdminOrders.ts';
 import { setupConfigForm, initConfigForm } from './components/AdminConfig.ts';
 import { showToast } from '../utils/helpers';
 
+// 
+
+/**
+ * Subscribes to Supabase Realtime for new order inserts.
+ * Triggers sound, toast, and data refresh on new orders.
+ */
+function setupRealtimeOrders() {
+  supabase
+    .channel('public:orders')
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'orders' },
+      (_payload) => {
+        showToast('🔔 Pesanan Baru Masuk!', 'success');
+        renderAdminOrders();
+      }
+    )
+    .subscribe();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   setupAuth();
   setupSidebarNavigation();
@@ -41,6 +61,7 @@ function setupAuth() {
       // Load initial data
       renderAdminOrders();
       initConfigForm();
+      setupRealtimeOrders();
     } else {
       // Logged out
       loginView?.classList.remove('hidden');

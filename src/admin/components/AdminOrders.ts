@@ -1,5 +1,6 @@
-import { fetchOrders, updateOrderStatus } from '../../api/orderApi';
-import { formatCurrency, showToast } from '../../utils/helpers';
+import { fetchOrders, updateOrderStatus, clearArchivedOrders } from '../../api/orderApi';
+import { formatCurrency, showToast, showConfirm } from '../../utils/helpers';
+import type { Order } from '../../types/index';
 
 export async function renderAdminOrders() {
   const emptyState = document.getElementById('admin-orders-empty');
@@ -20,8 +21,14 @@ export async function renderAdminOrders() {
     });
   }
 
+  // Setup clear archive button
+  setupClearArchiveButton();
+
   try {
     const orders = await fetchOrders();
+
+    // Update dashboard stats whenever orders are fetched
+    updateDashboardStats(orders);
 
     if (orders.length === 0) {
       emptyState.classList.remove('hidden');
@@ -62,9 +69,14 @@ export async function renderAdminOrders() {
           <div>
             <span class="text-xs font-bold font-mono text-outline mb-1 block">${order.id}</span>
             <h4 class="font-bold text-primary text-xl font-display-lg">${order.customerName}</h4>
-            <p class="text-xs text-on-surface-variant flex items-center gap-1 mt-1">
-                <span class="material-symbols-outlined text-[14px]">schedule</span> ${dateText}
-            </p>
+            <div class="flex items-center gap-3 mt-1">
+                <p class="text-xs text-on-surface-variant flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">schedule</span> ${dateText}
+                </p>
+                <p class="text-xs text-on-surface-variant flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">call</span> ${order.whatsapp}
+                </p>
+            </div>
           </div>
           <div>
             ${statusBadge}
@@ -83,12 +95,15 @@ export async function renderAdminOrders() {
           </div>
         ` : ''}
         
-        <div class="flex gap-3 text-sm mt-4 pt-2">
+        <div class="flex flex-wrap gap-2 text-sm mt-4 pt-2">
+          <a href="https://wa.me/${order.whatsapp.replace(/[^0-9]/g, '')}" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 shadow-sm min-w-[120px]">
+              <span class="material-symbols-outlined text-[18px]">chat</span> Hubungi
+          </a>
           ${order.status === 'pending' ? `
-            <button class="flex-1 bg-primary text-white py-2.5 rounded-lg font-bold cursor-pointer hover:bg-primary-container transition-colors btn-complete flex items-center justify-center gap-2 shadow-sm" data-id="${order.id}">
+            <button class="flex-1 bg-primary text-white py-2.5 px-3 rounded-lg font-bold cursor-pointer hover:bg-primary-container transition-colors btn-complete flex items-center justify-center gap-2 shadow-sm min-w-[120px]" data-id="${order.id}">
                 <span class="material-symbols-outlined text-[18px]">check_circle</span> Selesai
             </button>
-            <button class="bg-surface border border-outline-variant hover:bg-rose-600 hover:text-white hover:border-rose-600 text-rose-600 px-4 py-2.5 rounded-lg font-bold cursor-pointer transition-colors btn-cancel flex items-center gap-2" data-id="${order.id}">
+            <button class="bg-surface border border-outline-variant hover:bg-rose-600 hover:text-white hover:border-rose-600 text-rose-600 py-2.5 px-3 rounded-lg font-bold cursor-pointer transition-colors btn-cancel flex items-center justify-center gap-2 min-w-[100px]" data-id="${order.id}">
                 <span class="material-symbols-outlined text-[18px]">cancel</span> Batal
             </button>
           ` : ''}
@@ -100,7 +115,15 @@ export async function renderAdminOrders() {
       });
 
       orderCard.querySelector('.btn-cancel')?.addEventListener('click', async () => {
-        if (confirm('Yakin ingin membatalkan pesanan ini?')) {
+        const ok = await showConfirm({
+          title: 'Batalkan Pesanan?',
+          message: 'Pesanan ini akan ditandai sebagai Dibatalkan. Tindakan ini tidak dapat diubah kembali.',
+          confirmText: 'Ya, Batalkan',
+          confirmClass: 'bg-rose-600 hover:bg-rose-700 text-white',
+          icon: 'cancel',
+          iconClass: 'text-rose-500',
+        });
+        if (ok) {
           await handleUpdateStatus(order.id, 'cancelled');
         }
       });
@@ -111,6 +134,34 @@ export async function renderAdminOrders() {
     console.error('Failed to load orders inside admin:', err);
     showToast('Gagal memuat pesanan', 'error');
   }
+}
+
+/**
+ * Calculates and renders today's order statistics into the dashboard cards.
+ */
+function updateDashboardStats(orders: Order[]) {
+  const statTotalOrders = document.getElementById('stat-total-orders');
+  const statTotalRevenue = document.getElementById('stat-total-revenue');
+  const statPendingOrders = document.getElementById('stat-pending-orders');
+
+  if (!statTotalOrders || !statTotalRevenue || !statPendingOrders) return;
+
+  const today = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+  const todayOrders = orders.filter(order => {
+    const orderDate = new Date(order.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    return orderDate === today;
+  });
+
+  const totalRevenue = todayOrders
+    .filter(order => order.status !== 'cancelled')
+    .reduce((sum, order) => sum + order.totalPrice, 0);
+
+  const pendingCount = orders.filter(order => order.status === 'pending').length;
+
+  statTotalOrders.textContent = String(todayOrders.length);
+  statTotalRevenue.textContent = formatCurrency(totalRevenue);
+  statPendingOrders.textContent = String(pendingCount);
 }
 
 async function handleUpdateStatus(id: string, status: 'completed' | 'cancelled') {
@@ -125,4 +176,44 @@ async function handleUpdateStatus(id: string, status: 'completed' | 'cancelled')
   } catch {
     showToast('Gagal memperbarui status pesanan', 'error');
   }
+}
+
+/**
+ * Mendaftarkan handler untuk tombol "Bersihkan Arsip".
+ * Hanya didaftarkan sekali menggunakan pola data-bound.
+ */
+function setupClearArchiveButton() {
+  const clearBtn = document.getElementById('clear-archive-btn') as HTMLButtonElement | null;
+  if (!clearBtn || clearBtn.dataset.bound) return;
+
+  clearBtn.dataset.bound = 'true';
+  clearBtn.addEventListener('click', async () => {
+    const confirmed = await showConfirm({
+      title: 'Bersihkan Arsip Pesanan?',
+      message: 'Semua pesanan Selesai & Dibatalkan akan dihapus permanen. Pesanan yang masih Menunggu tetap aman. Tindakan ini tidak bisa dibatalkan.',
+      confirmText: 'Ya, Hapus Arsip',
+      confirmClass: 'bg-rose-600 hover:bg-rose-700 text-white',
+      icon: 'delete_sweep',
+      iconClass: 'text-rose-500',
+    });
+    if (!confirmed) return;
+
+    const origHtml = clearBtn.innerHTML;
+    clearBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">refresh</span> Menghapus...';
+    clearBtn.disabled = true;
+
+    const deletedCount = await clearArchivedOrders();
+
+    clearBtn.innerHTML = origHtml;
+    clearBtn.disabled = false;
+
+    if (deletedCount === -1) {
+      showToast('Gagal membersihkan arsip pesanan.', 'error');
+    } else if (deletedCount === 0) {
+      showToast('Tidak ada arsip pesanan untuk dihapus.', 'success');
+    } else {
+      showToast(`${deletedCount} pesanan arsip berhasil dihapus.`, 'success');
+      renderAdminOrders();
+    }
+  });
 }

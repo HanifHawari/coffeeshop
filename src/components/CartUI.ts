@@ -96,9 +96,9 @@ function setupOrderSubmission() {
     submitBtn.innerHTML = `<span class="material-symbols-outlined text-lg animate-spin">sync</span> Mengirimkan Pesanan...`;
 
     try {
-      const success = await createOrder(customerName, whatsapp, email, notes, orderItems, totalPrice);
+      const orderId = await createOrder(customerName, whatsapp, email, notes, orderItems, totalPrice);
 
-      if (success) {
+      if (orderId) {
         showToast('Pesanan berhasil disimpan di database (Supabase)!', 'success');
         
         clearCart();
@@ -120,7 +120,106 @@ function setupOrderSubmission() {
             const whatsappNumber = window.localStorage.getItem('config_whatsapp') || '628123456789';
             
             totalText.innerText = formatCurrency(totalPrice);
-            btnWA.href = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=Halo%20Kopi%20Josjis,%20saya%20sudah%20melakukan%20pembayaran%20untuk%20pesanan%20atas%20nama%20${encodeURIComponent(customerName)}%20sebesar%20${encodeURIComponent(formatCurrency(totalPrice))}.%20Berikut%20bukti%20transfernya:`;
+            
+            // --- Accordion Logic ---
+            const methodRadios = document.querySelectorAll('input[name="payment-method"]');
+            const subOptions = document.querySelectorAll('.sub-option input[type="radio"]');
+            const subPanels = document.querySelectorAll('.payment-sub-panel');
+            const ewalletInfo = document.getElementById('ewallet-qris-info');
+            const ewalletNameDisplay = document.getElementById('ewallet-name-display');
+            const bankAccountInfo = document.getElementById('bank-account-info');
+
+            let selectedMethod = '';
+            let selectedSubOption = '';
+
+            const updateWALink = () => {
+              let paymentText = selectedMethod;
+              if (selectedSubOption) paymentText += ` (${selectedSubOption})`;
+              if (!paymentText) paymentText = 'Belum dipilih';
+
+              const message = `Halo Kopi Josjis,\n\nSaya ingin mengkonfirmasi pesanan saya:\n*Order ID:* ${orderId}\n*Nama:* ${customerName}\n*Total:* ${formatCurrency(totalPrice)}\n*Metode Pembayaran:* ${paymentText}\n\nMohon segera diproses. Terima kasih!`;
+              const finalUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+              
+              btnWA.href = finalUrl;
+              btnWA.onclick = (e) => {
+                e.preventDefault();
+                console.log('Menuju WA:', finalUrl);
+                try {
+                  const newWin = window.open(finalUrl, '_blank');
+                  if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
+                    // Popup blocked! Fallback to same window
+                    window.location.href = finalUrl;
+                  }
+                } catch (err) {
+                  window.location.href = finalUrl;
+                }
+              };
+            };
+
+            const hideAllSubPanels = () => {
+              subPanels.forEach(panel => panel.classList.add('hidden'));
+              if(ewalletInfo) ewalletInfo.classList.add('hidden');
+              if(bankAccountInfo) bankAccountInfo.classList.add('hidden');
+            };
+
+            methodRadios.forEach(radio => {
+              radio.addEventListener('change', (e) => {
+                const target = e.target as HTMLInputElement;
+                selectedMethod = target.value.toUpperCase();
+                selectedSubOption = ''; 
+                
+                document.querySelectorAll('.method-radio-dot').forEach(d => d.classList.remove('scale-100'));
+                document.querySelectorAll('.payment-method-group').forEach(g => g.classList.remove('border-primary'));
+                const group = target.closest('.payment-method-group');
+                if (group) {
+                  group.classList.add('border-primary');
+                  const dot = group.querySelector('.method-radio-dot');
+                  if(dot) dot.classList.add('scale-100');
+                }
+
+                hideAllSubPanels();
+
+                if (target.value === 'ewallet') {
+                  const p = document.querySelector('.payment-sub-panel:has([data-sub-group="ewallet"])');
+                  if (p) p.classList.remove('hidden');
+                } else if (target.value === 'bank') {
+                  const p = document.querySelector('.payment-sub-panel:has([data-sub-group="bank"])');
+                  if (p) p.classList.remove('hidden');
+                } else if (target.value === 'cash') {
+                  selectedSubOption = 'Bayar di Kasir';
+                }
+
+                document.querySelectorAll('.sub-logo-box').forEach(b => b.classList.remove('border-primary'));
+                updateWALink();
+              });
+            });
+
+            subOptions.forEach(sub => {
+              sub.addEventListener('change', (e) => {
+                const target = e.target as HTMLInputElement;
+                selectedSubOption = target.value;
+                
+                document.querySelectorAll('.sub-logo-box').forEach(b => b.classList.remove('border-primary'));
+                const box = target.closest('label')?.querySelector('.sub-logo-box');
+                if(box) box.classList.add('border-primary');
+
+                if (target.name === 'sub-ewallet') {
+                  if (ewalletInfo && ewalletNameDisplay) {
+                    ewalletInfo.classList.remove('hidden');
+                    ewalletNameDisplay.innerText = target.value;
+                  }
+                } else if (target.name === 'sub-bank') {
+                  if (bankAccountInfo) {
+                    bankAccountInfo.classList.remove('hidden');
+                    bankAccountInfo.innerHTML = `Silakan transfer ke rekening <b>${target.value}</b> a.n. Kopi Josjis.`;
+                  }
+                }
+
+                updateWALink();
+              });
+            });
+
+            updateWALink(); // Initial Link setup
             
             modal.classList.remove('hidden');
             modal.classList.add('flex');

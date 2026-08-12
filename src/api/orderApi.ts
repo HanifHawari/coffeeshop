@@ -23,7 +23,7 @@ export async function createOrder(
   notes: string, 
   items: OrderItem[], 
   totalPrice: number
-): Promise<boolean> {
+): Promise<string | null> {
   try {
     const id = 'TR-' + Math.random().toString(36).substr(2, 9).toUpperCase();
     const newOrder = {
@@ -43,10 +43,10 @@ export async function createOrder(
       .insert([newOrder]);
 
     if (error) throw error;
-    return true;
+    return id;
   } catch (error) {
     console.error('Failed to create order:', JSON.stringify(error, null, 2));
-    return false;
+    return null;
   }
 }
 
@@ -70,5 +70,21 @@ export async function updateOrderStatus(id: string, status: 'completed' | 'cance
   } catch (error) {
     console.error('Failed to update order status:', error);
     return false;
+  }
+}
+
+export async function clearArchivedOrders(): Promise<number> {
+  try {
+    const { data, error, count } = await supabase
+      .from('orders')
+      .delete()
+      .in('status', ['completed', 'cancelled'])
+      .select();
+
+    if (error) throw error;
+    return data?.length || count || 0;
+  } catch (error) {
+    console.error('Failed to clear archived orders:', error);
+    return 0;
   }
 }

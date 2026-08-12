@@ -81,11 +81,7 @@ export function initInfiniteMenu(containerId: string, speed: number = 30) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    // Clear existing content
-    container.innerHTML = '';
-    
-    // Add specific marquee classes to the container
-    container.classList.add('marquee-container');
+    const isMobile = window.innerWidth < 768;
 
     // Generate HTML for one set of menu cards
     const generateCardsHtml = () => {
@@ -104,6 +100,30 @@ export function initInfiniteMenu(containerId: string, speed: number = 30) {
         `).join('');
     };
 
+    // Clear existing content
+    container.innerHTML = '';
+
+    // -------------------------------------------------------
+    // MOBILE: Native horizontal scroll strip (satu group saja)
+    // Scroll horizontal dikurung di dalam container ini,
+    // sehingga halaman (body) tidak ikut bergeser.
+    // -------------------------------------------------------
+    if (isMobile) {
+        container.classList.remove('marquee-container');
+        container.classList.add('mobile-scroll-strip');
+
+        const strip = document.createElement('div');
+        strip.className = 'mobile-scroll-track';
+        strip.innerHTML = generateCardsHtml();
+        container.appendChild(strip);
+        return; // Selesai — tidak ada marquee di mobile
+    }
+
+    // -------------------------------------------------------
+    // DESKTOP: Infinite marquee dengan dua group
+    // -------------------------------------------------------
+    container.classList.add('marquee-container');
+
     const cardsHtml = generateCardsHtml();
 
     // Create the track
@@ -112,7 +132,6 @@ export function initInfiniteMenu(containerId: string, speed: number = 30) {
     track.style.setProperty('--marquee-duration', `${speed}s`);
 
     // Create two identical groups for the seamless loop
-    // Duplikasi 2x (atau lebih jika list sangat sedikit)
     const group1 = document.createElement('div');
     group1.className = 'marquee-group';
     group1.innerHTML = cardsHtml;
@@ -137,6 +156,9 @@ export function initInfiniteMenu(containerId: string, speed: number = 30) {
         hasDragged = false;
         track.style.cursor = 'grabbing';
         
+        // Cegah text selection saat drag (perilaku default browser pada mousedown)
+        if (e.type === 'mousedown') e.preventDefault();
+
         // Pause animasi melalui inline style
         track.style.animationPlayState = 'paused';
         
@@ -199,11 +221,9 @@ export function initInfiniteMenu(containerId: string, speed: number = 30) {
         }
     }, true); // Gunakan capture phase agar memotong event sebelum sampai ke button
 
+    // Hanya daftarkan event mouse (desktop); touch events TIDAK didaftarkan
+    // untuk mencegah bug page-drag di perangkat mobile.
     track.addEventListener('mousedown', handleDragStart);
     window.addEventListener('mousemove', handleDragMove);
     window.addEventListener('mouseup', handleDragEnd);
-
-    track.addEventListener('touchstart', handleDragStart, { passive: true });
-    window.addEventListener('touchmove', handleDragMove, { passive: true });
-    window.addEventListener('touchend', handleDragEnd);
 }
